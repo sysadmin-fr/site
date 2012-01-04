@@ -1,0 +1,73 @@
+<div class="content">
+      <p>Présentation des diverses configuration DNS possibles pour faciliter le déploiement de kerberos.</p>
+<p>Deux types d'enregistrement DNS sont utilisés par kerberos (MIT Kerberos 5) pour faciliter le déploiement de kerberos sur les postes clients.</p>
+<h3>Enregistrement SRV</h3>
+<p>Le premier (et le plus important) est l'enregistrement <a href="http://en.wikipedia.org/wiki/SRV_record">SRV</a>, il permet de définir les différents serveurs kerberos disponibles sur une zone.</p>
+<p>Kerberos défini plusieurs services configurables: kerberos, kpasswd, kerberos-adm et kerberos-master. Le premier étant le plus important car il permet d'obtenir la liste des contrôleurs de domaines disponibles.</p>
+<table>
+<tr>
+<th>Service</th>
+<th>Protocole</th>
+<th>Port</th>
+<th>Description</th>
+<th>Exemple</th>
+</tr><tr>
+</tr><tr>
+<td>kerberos</td>
+<td>udp</td>
+<td>88</td>
+<td>Adresse d'un KDC</td>
+<td><code>_kerberos._udp  IN      SRV     0       0       88      kdc2.sysadmin.net.</code></td>
+</tr>
+<tr>
+<td>kpasswd</td>
+<td>udp</td>
+<td>464</td>
+<td>Adresse d'un serveur d'administration kerberos, service de changement de mot de passes</td>
+<td><code>_kpasswd._udp    IN      SRV     0       0       464     kdc1.sysadmin.net.</code></td>
+</tr>
+<tr>
+<td>kerberos-adm</td>
+<td>tcp</td>
+<td>749</td>
+<td>Adresse d'un serveur d'administration kerberos, service d'administration.</td>
+<td><code>_kerberos-adm._tcp      IN      SRV     0       0       749     kdc1.sysadmin.net.</code></td>
+</tr>
+<tr>
+<td>kerberos-master</td>
+<td>udp</td>
+<td>88</td>
+<td>Adresse du KDC primaire, ou plus précisement le/les kdc directement impactés par un changement de mot de passe. Utilisé par les clients pour lors de la saisie d'un mot de passe incorrect pour valider que ce n'est pas un problème de propagation.</td>
+<td><code>_kerberos-master._udp  IN      SRV     0       0       88      kdc1.sysadmin.net.</code></td>
+</tr>
+</table>
+<h3>Enregistrement TXT</h3>
+<p>Remplace les affectations de la section <em>domain_realm</em> du fichier <em>/etc/krb5.conf</em>.</p>
+<table>
+<tr>
+<th>Service</th>
+<th>Description</th>
+<th>Exemple</th>
+</tr><tr>
+</tr><tr>
+<td>kerberos</td>
+<td>Associe un REALM kerberos avec le domaine dns.</td>
+<td><code>_kerberos.asyd.net. IN TXT "SYSADMIN.NET".</code></td>
+</tr>
+</table>
+  <div id="book-navigation-18" class="book-navigation">
+    
+        <div class="page-links clear-block">
+              <a href="/fr/articles/kerberos/kdc-slave" class="page-previous" title="Aller à la page précédente">‹ 2 - Installation d&#039;un serveur de ticket esclave</a>
+                    <a href="/fr/articles/kerberos" class="page-up" title="Aller à la page parent">haut</a>
+                    <a href="/fr/articles/kerberos/http" class="page-next" title="Aller à la page suivante">4 - Authentification HTTP par ticket Kerberos ›</a>
+          </div>
+    
+  </div>
+    </div>
+<div class="content">
+      </div>
+<div class="content">
+    <ul><li class="en first"><a href="/en/node/34" class="language-link">English</a></li>
+<li class="fr last active"><a href="/fr/articles/kerberos/dns" class="language-link active">French</a></li>
+</ul>  </div>

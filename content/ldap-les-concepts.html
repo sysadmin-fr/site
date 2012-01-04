@@ -1,0 +1,53 @@
+<div class="content">
+      <p>Les concepts</p>
+<h1>Introduction et historique</h1>
+<h1>Le protocole</h1>
+<h1>Un objet LDAP</h1>
+<p>Le modèle d'information LDAP est orienté objet, on y retrouve donc des objets et des classes exactement comme dans un langage de programmation objet (C++ ou Java par exemple) à la différence près qu'un objet LDAP ne dispose pas de méthodes spécifiques. Fondamentalement, donc, un objet LDAP est une instance d'une classe d'objet LDAP (objectClass).</p>
+<p>On dit par ailleurs que les informations stockées dans LDAP sont tri-dimensionnels. Cette notion est l'une des principales différences avec le modèle bi-dimensionnel d'une base de données relationnelle.</p>
+<ol>
+<li>La première dimension est la classe d'objet (objectClass) - par exemple <i>person</i></li>
+<li>La deuxième dimension est le type d'attribut - par exemple <i>mail</i></li>
+<li>La troisième dimension est le nombre de valeurs de l'attribut - par exemple <i>elilly@enterprise.com</i> et <i>evangeline@gmail.com</i></li>
+</ol>
+
+<h2>Les types d'objectClass</h2>
+<h2>Les types d'attributs</h2>
+<p>Un attribut est toujours défini par un nom, un OID, une syntaxe, et une méthode de recherche. La syntaxe définit le type de contenu de cet attribut, on trouvera par exemple les traditionnels :</p>
+<ul>
+<li>Chaîne de caractère (IA5DirectoryString)</li>
+<li>Date (timestamp)</li>
+</ul>
+
+<h1>Les opérations</h1>
+<p>La RFC LDAPv3 définie un certain nombres d'opérations pour manipuler les objets LDAP, on peut y trouver :</p>
+<h2>bind</h2>
+<p>C'est l'opération qui permet de s'authentifier sur un annuaire</p>
+<h2>search</h2>
+<h2>delete</h2>
+<h2>modify</h2>
+<h1>Le DIT</h1>
+<h1>Comment obtenir un PEN</h1>
+<p>Comme vu précédemment, dès que l'on souhaite créer un objectClass ou un attribut dans un schéma LDAP il faut définir un OID unique. Pour une application bien précise et spécifique, on peut souhaiter vouloir créer son propre schéma LDAP et par conséquent définir ses propres OIDs.</p>
+<p>La question à se poser lors de la création de son schéma est donc : Quels sont les OIDs que l'on peut utiliser ?</p>
+<p>Pour rappel, chaque OID est un identifiant universel composé d'une suite d'entiers sous une forme hiérarchique. Cette hiérarchie est définie sous la forme d'une arborescence gérée par l'IANA. On rattache chaque nœud de l'arborescence à un organisme ou entité qui aura l'entière responsabilité de gérer le sous-arbre d'OIDs correspondant.</p>
+<p>Les OIDs définis par l'organisme en question pourront être utilisés pour définir un schéma LDAP mais aussi pour décrire d'autres objets tels que des OIDs SNMP.</p>
+<p>Lorsque l'on créé donc son schéma LDAP, il faut donc déterminer ou se placer dans cette arborescence pour définir ces OIDs sachant qu'il faut respecter certaines conditions : </p>
+<ul>
+<li>Les OIDs créés doivent être unique</li>
+<li>Les OIDs doivent s'intégrer dans l'arborescence des OIDs maintenue et gérée par le IANA</li>
+</ul>
+
+<p>La meilleure solution est de faire une demande auprès du IANA pour obtenir pour son organisation / entité / entreprise un numéro d'identification dans l'arborescence des OIDs. On appelle cela un PEN (Private Enterprise Number).</p>
+<p>Le IANA a réservé en effet le préfixe 1.3.6.1.4.1 de l'arborescence des OIDs pour les entreprises et entités privés. Ainsi, lorsque le IANA attribue un PEN à une entité, son préfixe pour ses OIDs sera 1.3.6.1.4.1.PEN. L'organisation à qui le PEN a été attribué aura toute autorité sur le sous-arbre des OIDs dont le préfixe est 1.3.6.1.4.1.PEN.</p>
+<p>Par exemple, CISCO à obtenu le PEN numéro 9, par conséquent son prefixe pour définir ses OIDs est 1.3.6.1.4.1.9.</p>
+<p>Pour obtenir un PEN, rien de plus simple, il suffit de se rendre sur le site du IANA à l'adresse <a href="http://pen.iana.org/pen/PenApplication.page" target="_blank">http://pen.iana.org/pen/PenApplication.page</a></p>
+<p>Il vous sera demandé de remplir un formulaire qui une fois rempli sera soumis à validation. Le processus de validation prend entre 2 et 3 semaines. Durant ce processus de validation, le IANA peut revenir vers le demandeur pour des compléments d'informations sur les informations postées dans le formulaire. Ce n'est donc pas juste une procédure automatique. Il vaut mieux donc remplir correctement toutes les informations demandées.</p>
+<p>Une fois le processus de validation achevé, un mail sera envoyé avec le PEN attribué à votre entité. Dans l'heure, il sera visible sur le site du IANA dans la liste de tous les PEN attribués (<a href="http://www.iana.org/assignments/enterprise-numbers" taget="_blank">http://www.iana.org/assignments/enterprise-numbers</a>)</p>
+<p>Félicitations, vous pouvez maintenant définir vos propres OIDs.</p>
+<h1>Liens utiles</h1>
+<ul>
+<li><a href="http://bazaar.launchpad.net/~ahasenack/openldap-dit/trunk/annotate/head%3A/README">Un document décrivant les bonnes pratiques pour construire un DIT</a></li>
+<li><a href="http://linagora.org/contrib/annuaires">Des contributions de la société Linagora sur les annuaires LDAP, incluant des formations, des scripts pour OpenLDAP et d'autres ressources</a></li>
+<li><a href="http://ltb-project.org/">Scripts d'administration LDAP, extensions monitoring LDAP, packaging OpenLDAP</a></li>
+</ul>

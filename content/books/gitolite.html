@@ -1,0 +1,6 @@
+<div class="content">
+      <p>Git (http://git-scm.com/) est un gestionnaire de sources réparti permettant à chaque utilisateur d'avoir son propre dépôt local dans lequel il peut faire toutes les actions inhérentes à un gestionnaire de sources sans avoir a être connecté à un dépôt distant et central en permanence.</p>
+<p>Cependant, dans une architecture utilisant Git, on a souvent un dépôt de référence sur lequel tous les développeurs viennent poser (push) et fusionner (merge) les évolutions de leur dépôt local sur ce dépôt de référence. </p>
+<p>Un autre mode de fonctionnement est que l'administrateur du repository de référence vienne tirer toutes les modifications des dépôts des developpeurs et fasse lui même le merge. C'est comme celà que fonctionne notamment la gestion des sources pour le noyau Linux.</p>
+<p>Git étant basé sur la confiance entre développeurs, il n'est pas prévu avec le système de base une gestion de droits et / ou de listes de contrôle d'accès (ACL) pour autoriser ou interdire l'accès à certains dépôts (tout ou partie).</p>
+<p>Le but de cet article est donc de présenter le projet Gitolite (<a href="http://github.com/sitaramc/gitolite">http://github.com/sitaramc/gitolite</a>) permettant de mettre en place une gestion d'ACL pour des dépôts Git.</p>

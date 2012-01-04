@@ -1,0 +1,41 @@
+<div class="content">
+      <h3>Présentation rapide de TLS/SSL</h3>
+<p>Vous connaissez probablement tous les protocoles TLS et SSL, pour rappel SSL (Secure Socket Layer) est une norme inventé par Netscape il y a quelques temps déjà, qui fut standardisé par l'IETF en décembre 1999 sous le nom TLS (Transport Layer Security) par la RFC 2246, en version 1.0. Je propose dans cet article de découvrir une évolution très pratique de TLS. </p>
+<h3>La problématique de TLSv1.0 RFC2246</h3>
+<p>Comme vous le savez probablement tous, dans le cas d'une connexion TLS (typiquement une session HTTPs), l'établissement de la session s'effectue avant tout échange au niveau applicatif. Concrêtement, il est donc impossible de faire des hôtes virtuels, sur une même adresse IP, avec plusieurs certificats. En effet, dans le cas d'une session HTTPs, le nom d'hôte demandé (défini par l'en-tête <i>Host:</i>) est envoyé au serveur HTTP après l'établissement de la session SSL/TLS, donc après la négociation des certificats. Il est cependant possible d'utiliser le même certificat pour plusieurs hôtes virtuels en utilisant l'extension <i>subjectAltName</i> des certificats X509v3, mais point de salut en cas de multiples certificats.</p>
+<h3>L'évolution de TLSv1.0 : RFC 3546</h3>
+<p>Conscient du problème évoqué ci dessus, l'IETF à travaillé sur une évolution de la RFC 2246, tout en restant en version 1.0 du protocole. Une des évolutions notables est l'introduction du concept de SNI (<i>Service Name Indication</i>), décris dans le chapitre 3.1 de la RFC 3546, en voici un extrait :</p>
+<p><code><br />
+   [TLS] does not provide a mechanism for a client to tell a server the<br />
+   name of the server it is contacting.  It may be desirable for clients<br />
+   to provide this information to facilitate secure connections to<br />
+   servers that host multiple 'virtual' servers at a single underlying<br />
+   network address.<br />
+</code></p>
+<p><code><br />
+   In order to provide the server name, clients MAY include an extension<br />
+   of type "server_name" in the (extended) client hello.  The<br />
+   "extension_data" field of this extension SHALL contain<br />
+   "ServerNameList" where: [..]<br />
+</code></p>
+<p>Qu'est ce que cela veut dire ? Tout simplement que les clients (par exemple un navigateur web) peut désormais préciser le nom du service demandé <b>avant</b> la négociation SSL, de la même façon que l'en tête <i>Host:</i> en HTTP. Permettant ainsi aux applications d'agir de manière différente en fonction du SNI.</p>
+<p>Pour résumer, l'extension SNI permet (du moins quand elle sera implémentée dans l'ensemble des navigateurs et des bibliothèques de sécurités telles qu'OpenSSL et GNU TLS) de faire des vrais hôtes virtuels basés sur le nom, sur une seule adresse IP, avec des certificats différents.</p>
+<h3>Références</h3>
+<ul>
+<li> <a href="http://www.faqs.org/rfcs/rfc2246.html">RFC 2246</a>
+</li><li> <a href="http://www.faqs.org/rfcs/rfc3546.html">RFC 3546</a>
+</li><li> <a href="https://sni.velox.ch/">Tester si votre navigateur est SNI compliant</a>
+</li><li> <a href="http://www.g-loaded.eu/2007/08/10/ssl-enabled-name-based-apache-virtual-hosts-with-mod_gnutls/">Un article décrivant la mise en place du SNI avec apache et gnutls</a>
+</li><li> <a href="http://cvs.openssl.org/chngview?cn=16435">Le support de SNI dans OpenSSl</a>
+</li></ul>
+<h3>Remerciements</h3>
+<ul>
+<li> KingBug pour tout ses liens
+</li></ul>
+    </div>
+<div class="content">
+      </div>
+<div class="content">
+    <ul><li class="en first"><a href="/en/ssl/sni" class="language-link">English</a></li>
+<li class="fr last active"><a href="/fr/ssl/sni" class="language-link active">French</a></li>
+</ul>  </div>

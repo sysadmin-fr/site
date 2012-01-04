@@ -99,3 +99,22 @@ a:hover {
 
   line-height: 20px;
 }
+
+#disqus_thread {
+	border-top: 1px solid #ccc;
+	margin-top: 20px;
+}
+
+div.first-column {
+	float: left;
+	width: 48%;
+}
+
+div.second-column {
+	float: right;
+	width: 48%;
+}
+
+div.clearfloat {
+	clear: both;
+}

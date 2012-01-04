@@ -1,0 +1,70 @@
+<div class="content">
+      <p>Généralement, la gestion des droits sur les SCM est centralisée et sous la responsabilité de l'administrateur du repository. Cela peut être problématique en cas d'indisponibilité de cette personne en cas de demande de modifications des droits sur un repository.</p>
+<p>Un des points forts de gitolite est justement donc de pouvoir déléguer les droits sur un repository existant à un autre utilisateur gitolite enregistré autre que l'administrateur gitolite.</p>
+<p>Nous allons donc voir dans cette dernière partie avec un exemple concret de délégations de droits qui est la meilleure manière d'expliquer la délégations de droits sur gitolite.</p>
+<p>Nous allons donc considérer un utilisateur alice enregistré dans la base des utilisateurs gitolite et nous allons lui déléguer les droits d'administration sur le repository monprojet-kitu.</p>
+<h1>Déclaration des groupes</h1>
+<p>La méthode la plus conseillée pour gérer les délégations de droits est de regrouper les repositories dans des groupes et d'activer la délégation des droits sur un groupe de repositories.</p>
+<p>Nous allons donc créer un groupe <code>alice_repos</code> dans lequel nous allons mettre le repository <code>monprojet-kitu</code>.</p>
+<p>Tout va se faire en tant qu'administrateur gitolite, seul utilisateur à avoir l'accès à la branche master qui gère les droits de tous les repositories.</p>
+<p>Après avoir fait un update de la branche master si nécessaire, on édite le fichier <code>conf/gitolite.conf</code>.</p>
+<p><code>#Rajout du groupe<br />
+@alice_repos = monprojet-kitu</code></p>
+<p>Ce code permet donc de créer le groupe alice_repos et de rajouter le repository dedans. Si l'on souhaite inclure un autre repository, il suffit de le rajouter à la suite.</p>
+<p>Une fois le groupe déclaré, il faut procéder à la délégation des droits. Sous gitolite, il faut donc déléguer des droits en écriture sur une partie du repository gitolite. Il faut donc rajouter dans le bloc de déclaration du repository, l'instruction suivante : </p>
+<p><code>repo gitolite-admin<br />
+    RW alice_repos = alice<br />
+</code></p>
+<p>Fonctionnellement, cela signifie que l'on délègue à alice la possibilité de gérer les droits pour tous les repositories membre du groupe <code>alice_repos</code>. Cependant, si l'on se rapelle bien gitolite est avant tout un repository git avec des hooks particuliers. Si l'on se concentre donc sur ce qui est fait niveau git avec cette configuration, on se rend compte qu'en fait on vient de donner à alice des droits sur unr <strong>branche</strong> portant le nom du groupe.</p>
+<p><strong>Les droits des repositories du groupe seront gérées dans une branche portant le même nom que le groupe et dont les droits d'accès sont fixés par les ACLs gitolite</strong></p>
+<p>Une fois les modifications faites dans le fichier gitolite.conf, ne pas oublier de commiter et de pusher les modifications sur le serveur de référence.</p>
+<h2>Gestion des droits délégués</h2>
+<p>Nous sommes à présent connectés en tant qu'alice (A savoir dans un compte utilisateur ayant accès à la clé privée pour le compte alice gitolite). </p>
+<p>La première étape est de récupérer le repository gitolite-admin en tant qu'alice. Etant donné qu' l'administrateur a attribué des droits à alice, il est possible de faire un clone. (Opération impossible sans aucun droit sur ce repository).</p>
+<p><code>devalice@devstation:~$ git clone ssh://git@serveur-git/gitolite-admin<br />
+Initialized empty Git repository in /home/devalice/gitolite-admin/.git/<br />
+remote: Counting objects: 86, done.<br />
+remote: Compressing objects: 100% (66/66), done.<br />
+Receiving objects: 100% (86/86), 7.74 KiB, done.<br />
+Resolving deltas: 100% (13/13), done.<br />
+remote: Total 86 (delta 13), reused 0 (delta 0)</code></p>
+<h2>Création de la branche</h2>
+<p>L'étape suivante consiste à créer une branche dans le repository gitolite-admin correspondante au groupe pour lequel alice à les droits et se positionner dessus.</p>
+<p><code>devalice@devstation:~/gitolite-admin$ git branch alice_repos<br />
+devalice@devstation:~/gitolite-admin$ git checkout alice_repos<br />
+Switched to branch 'alice_repos'</code></p>
+<p>A présent il faut créer le fichier de configuration décrivant les droits établis par alice. Pour créer ce fichier, il faut respecter certaines contraintes pour que celui-ci soit validé par gitolite : </p>
+<ul>
+<li>Le fichier doit être contenu dans le répertoire conf/fragments. S'il n'existe pas dans la branche, le créer</li>
+<li>Le nom du fichier doit avoir le format suivant <strong>nom_du_groupe.conf</strong></li>
+</ul>
+<p>Pour notre exemple, cela donne donc les commandes suivantes : </p>
+<p><code>devalice@devstation:~/gitolite-admin$ mkdir -p conf/fragments</code></p>
+<p>Puis on créé un fichier nommé <strong><code>alice_repos.conf</code></strong> contenant les droits sur les repositories comme par exemple :<br />
+<code>repo monprojet-kitu<br />
+        RW+     =       alice<br />
+        R       =       @all<br />
+</code></p>
+<p>Avec cette on configuration, on donne tous les droits à alice et les droits en lecture pour tout le monde. Une fois le fichier sauvé, il faut le committer dans la branche. Si le fichier n'existait pas il faut l'ajouter avant à l'aborescence git.</p>
+<p><code>devalice@devstation:~/gitolite-admin$ git add conf/fragments/alice_repos.conf<br />
+devalice@devstation:~/gitolite-admin$ git commit conf/fragments/alice_repos.conf -m "Add rights by alice"</code></p>
+<p>La dernière étape consiste à pusher les modifications sur le serveur déférence afin de générer les ACLs. Attention par contre à pusher la branche de délégation et non la branche master.</p>
+<p><code>devalice@devstation:~/gitolite-admin$ git push origin alice_repos</code></p>
+<p>Lors du push les nouvelles ACLs sont générées en tentant compte de ces droits délégués.</p>
+<p>Important : Il est possible de déclarer des droits à la fois dans la branche master mais aussi dans une branche de délégation. Dans ce cas la, les droits s'ajoutent.</p>
+  <div id="book-navigation-280" class="book-navigation">
+    
+        <div class="page-links clear-block">
+              <a href="/fr/articles/gitolite/creation_repository" class="page-previous" title="Aller à la page précédente">‹ Création d&#039;un repository</a>
+                    <a href="/fr/articles/gitolite/configuration" class="page-up" title="Aller à la page parent">haut</a>
+                    <a href="/fr/articles/gitolite/conclusion" class="page-next" title="Aller à la page suivante">Conclusion ›</a>
+          </div>
+    
+  </div>
+    </div>
+<div class="content">
+      </div>
+<div class="content">
+    <ul><li class="en first"><a href="/en/articles/gitolite/delegation_de_droits" class="language-link">English</a></li>
+<li class="fr last active"><a href="/fr/articles/gitolite/delegation_de_droits" class="language-link active">French</a></li>
+</ul>  </div>

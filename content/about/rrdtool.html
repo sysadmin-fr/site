@@ -1,0 +1,91 @@
+<div class="content">
+      <p>Cet article a pour but de présenter le fonctionnement des bases RRD (Round Robin Database) utilisées par rrdtool. Ce n'est en aucun cas un cours détaillé sur leur architecture ou autre, mais plutôt une mise en exemple de leur création et leur modification.<br />
+Si vous êtes curieux ou que vous voulez parfaire votre connaissance, je vous invite à parcourir le site de rrdtool qui présentera la chose bien mieux que moi : <a href="http://oss.oetiker.ch/rrdtool/" title="http://oss.oetiker.ch/rrdtool/">http://oss.oetiker.ch/rrdtool/</a></p>
+<p><cite>Avant toute chose, je tiens a préciser que les bases Round Robin sont assez restreintes en terme de modification après création, puisqu'un réagencement de la base entraine généralement la perte des données. Je vous encourage donc a bien réfléchir quant à leur contenu avant de les passer en prod, pour ne pas avoir de mauvaises surprises.</cite></p>
+<dl>
+<dt><strong>Le contenu d'une base RRD</strong></dt>
+<dd>&nbsp;<br />
+Toutes les bases utilisées par rrdtool contiennent au moins deux choses :
+<ul>
+<li>Une source de données (<em>DS</em>)</li>
+<li>Une ou plusieurs archives Round-Robin (<em>RRA</em>)</li>
+</ul>
+<p>Celles-ci sont en nombre variables, suivant l'utilisation, mais une source de données est toujours liée à au moins une archive Round-Robin.<br />
+À cela, nous pouvons rajouter les intervalles de stockage (puisqu'une base rrd est indexée suivant un paramètre temporel uniquement) ainsi que la date de début d'enregistrement.<br />
+&nbsp;</p></dd>
+<dt><strong>La création d'une base RRD</strong></dt>
+<dd>&nbsp;<br />
+La syntaxe de création est élementaire :<br />
+<code>rrdtool create base.rrd\<br />
+      DS:item1:COUNTER:600:U:U\<br />
+      RRA:AVERAGE:0.5:1:200</code><br />
+Cet exemple (pas recherché je vous l'accorde) crée une base appelée <strong>base.rrd</strong> contenant une source de données item1 dont la mise a jour entre chaque élément est d'au maximum 600 secondes (passé ce délai, le contenu passe a <strong>*UNKNOWN*</strong>. Cette source n'est par bornée, et on lui associe un champ de moyenne, contenant au maximum 200 enregistrements de la valeur du heartbeat (par défaut 300).
+<p>Je vais donc détailler le fonctionnement de cette création, avec un exemple plus concret, par exemple pouvant servir à stocker les débits d'une carte réseau.</p>
+<ul>
+<li>Avant d'entrer les les DS et RRA, vous pouvez définir le step de la base, avec l'option <strong>--step</strong>. La valeur standard est <em>300 secondes</em>.<br />
+<code>--step 300</code><br />
+Ceci permet de définir l'intervalle minimum entre deux entrées dans la base en secondes<br />
+&nbsp;</li>
+<li><strong>--start</strong> permet de définir la date à partir de laquelle les enregistrement dans la base sont autorisés. La valeur standard vaut <em>timestamp - 10s</em><br />
+<code>--start 1185805047</code><br />
+Ceci n'autorisera que les enregistrements postérieurs au 30 juillet 2007 à 16h17:17.<br />
+&nbsp;</li>
+<li>Il faut maintenant creer au moins une DS.<br />
+<code>DS:name:type:opts</code><br />
+Le type peut être au choix parmis <em>GAUGE COUNTER DERIVE ABSOLUTE</em>. Je ne parlerai pas de <em>COMPUTE</em> ici, puisque trop avancé (Voyez la doc rrd pour cela).
+<ul>
+<li><strong>GAUGE</strong> correspond a une jauge, et peut être utilisée pour stocker une température ou une occupation disque par exemple.</li>
+<li><strong>COUNTER</strong> est un compteur incrémental qui n'accepte pas d'enregistrements inférieurs a la dernière valeur entrée sauf en cas d'overflow (il se charge de déterminer l'overflow sur 32 ou 64 bits). Utile pour mesurer le flot de paquets d'une interface par exemple</li>
+<li><strong>DERIVE</strong> effectue une dérivée par rapport au dernier enregistrement effectué. Intéressant lorsqu'une jauge présente des valeurs aberrantes.</li>
+<li><strong>ABSOLUTE</strong> est un compteur particulier puisqu'il empêche les valeurs négatives</li>
+</ul>
+<p>Bref, pour plus de détails sur leur fonctionnement, voir la doc.<br />
+Les options correspondent à <em>heartbeat:min:max</em> avec dans l'ordre le délai maximal entre deux enregistrements avant que le champ prenne la valeur <strong>UNKNOWN</strong>, puis la valeur minimale du champ et pour finir sa valeur maximale.
+</p></li>
+<li>Pour finir, il vous faut ajouter les RRA<br />
+<code>RRA:CF:xff:steps:rows</code>
+<ul>
+<li><strong>CF</strong> correspond au type d'agrégation escomptée : <em>AVERAGE MIN MAX LAST</em><br />
+Les noms sont assez parlants pour que je ne détaille pas</li>
+<li><strong>xff</strong> est un paramètre d'interpolation utilisé pour combler les trous lorsqu'on rencontre une valeur de DS a <em>UNKNOWN</em>. Il prend une valeur entre 0 et 1. Personellement, je n'y touche pas trop, et je laisse à 0.5, suffisant dans la majorité des cas.</li>
+<li><strong>steps</strong> correspond au nombre de valeurs prises dans la DS pour générer ce bout d'archive. Plus vulgairement, il correspond a l'intervalle de temps considéré pour une entrée dans la base (en multiple du heartbeat)</li>
+<li><strong>rows</strong> définit la capacité maximale de l'archive, en nombre de steps.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;<br />
+Avec tout cela, vous pouvez commencer à construire vos bases de données sans trop de soucis. Pensez juste à attribuer un nom unique a chaque DS, sous peine de vous faire insulter violemment par rrdcreate.</p>
+<p>Voici donc un exemple pour monitorer les entrées/sorties d'une interface réseau<br />
+<code>rrdtool create bdd_eth0.rrd --step 60 \<br />
+DS:b_in:DERIVE:600:U:U \<br />
+DS:b_out:DERIVE:600:U:U \<br />
+DS:p_in:DERIVE:600:U:U \<br />
+DS:b_out:DERIVE:600:U:U \<br />
+RRA:LAST:0.5:1:1440 \<br />
+RRA:AVERAGE:0.5:5:2000 \<br />
+RRA:AVERAGE:0.5:60:720</code><br />
+Cette base permet de stocker les débits entrants et sortants d'une interface et d'échelonner les mesures sur la journée, la semaine ou le mois.<br />
+&nbsp;<br />
+</p></dd>
+<dt><strong>Éditer la structure de la base rrd</strong></dt>
+<dd>&nbsp;<br />
+Il arrive que la structure ne soit pas adaptée aux besoins, et on peut la modifier dans certains cas.<br />
+Pour ne pas faire de plagiat pur et dur de la codumentation RRD, je vous invite à aller consulter <a href="http://oss.oetiker.ch/rrdtool/doc/rrdtune.en.html" title="http://oss.oetiker.ch/rrdtool/doc/rrdtune.en.html">http://oss.oetiker.ch/rrdtool/doc/rrdtune.en.html</a> pour modifier la structure et <a href="http://oss.oetiker.ch/rrdtool/doc/rrdresize.en.html" title="http://oss.oetiker.ch/rrdtool/doc/rrdresize.en.html">http://oss.oetiker.ch/rrdtool/doc/rrdresize.en.html</a> pour modifier la taille d'un ou plusieurs RRA.<br />
+&nbsp;</dd>
+</dl>
+<p>Voilà, vous savez maintenant comment créer vos bases RRD, la prochaine étape est de les remplir.</p>
+  <div id="book-navigation-15" class="book-navigation">
+    
+        <div class="page-links clear-block">
+              <a href="/fr/node/15" class="page-previous" title="Aller à la page précédente">‹ RRDtool ou le monitoring visuel</a>
+                    <a href="/fr/node/15" class="page-up" title="Aller à la page parent">haut</a>
+                </div>
+    
+  </div>
+    </div>
+<div class="content">
+      </div>
+<div class="content">
+    <ul><li class="en first"><a href="/en/about/rrdtool" class="language-link">English</a></li>
+<li class="fr last active"><a href="/fr/about/rrdtool" class="language-link active">French</a></li>
+</ul>  </div>

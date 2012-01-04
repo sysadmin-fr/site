@@ -1,0 +1,32 @@
+<div class="content">
+      <p>Gitolite est un projet <em>open source</em> permettant de gérer les droits sur les dépôts Git en utilisant un système d'ACL. Comme pour certains systèmes de gestion de versions tels que Subversion, il est possible de gérer les droits à différents niveaux de granularité tels que le dépôt complet ou bien certaines branches du dépôt.</p>
+<p>Cependant, une des choses très intéressantes dans Gitolite est de pouvoir déléguer les droits d'administration à d'autres utilisateurs. L'administrateur principal de la base des dépôts pourra donc en déléguer certains à des utilisateurs enregistrés.</p>
+<p>Le principe de fonctionnement de Gitolite est assez simple : Toute la gestion des ACL se fait dans un dépôt Git spécifique. Ce dépôt contient toute la configuration des ACLs ainsi que la gestion des utilisateurs.</p>
+<p>Ainsi afin de pouvoir mettre à jour les droits, on utilisera des commandes telles que <code>git add</code>, <code>git commit</code>, <code>git push</code>, etc.</p>
+<p>En ce qui concerne la localisation, un dépôt gitolite de référence sera déployé sur le serveur contenant tous les dépôts de références pour lesquels on souhaite mettre en place une gestion d'ACL.</p>
+<p>Le principe de configuration des ACLs se fera donc de la manière suivante : </p>
+<ol>
+<li>récupérer le dépôt git de référence (<code>clone / pull / fetch</code>)&nbsp;;</li>
+<li>modifier les fichiers de configuration contenus dans le dépôt Git&nbsp;;</li>
+<li>enregistrer les modifications dans le dépôt Git local&nbsp;;</li>
+<li>synchroniser le dépôt local avec le dépôt distant.</li>
+</ol>
+<p>Vous l'aurez donc compris, Gitolite est un outil fait par des utilisateurs de Git pour des utilisateurs Git. Pour pouvoir bien l'utiliser il est nécessaire de bien maitriser les concepts de Git.</p>
+<p>Site du Projet Gitolite : <a href="http://github.com/sitaramc/gitolite">http://github.com/sitaramc/gitolite</a></p>
+<p>Gitolite est censé pouvoir fonctionner sur n'importe quel système pouvant faire tourner Git, Perl et un serveur SSH. Pour cet article, gitolite a été testé et validé sur Redhat Enterprise et Debian Lenny.</p>
+  <div id="book-navigation-280" class="book-navigation">
+    
+        <div class="page-links clear-block">
+              <a href="/fr/articles/gitolite" class="page-previous" title="Aller à la page précédente">‹ Droits sur un repository Git avec Gitolite</a>
+                    <a href="/fr/articles/gitolite" class="page-up" title="Aller à la page parent">haut</a>
+                    <a href="/fr/articles/gitolite/behind_the_scenes" class="page-next" title="Aller à la page suivante">Behind the scenes ›</a>
+          </div>
+    
+  </div>
+    </div>
+<div class="content">
+      </div>
+<div class="content">
+    <ul><li class="en first"><a href="/en/node/284" class="language-link">English</a></li>
+<li class="fr last active"><a href="/fr/articles/gitolite/presentation" class="language-link active">French</a></li>
+</ul>  </div>

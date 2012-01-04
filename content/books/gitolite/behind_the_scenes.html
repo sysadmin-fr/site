@@ -1,0 +1,44 @@
+<div class="content">
+      <p>La gestion des droits se fait donc par l'intermédiaire d'un repository Git. Comment se fait donc la mise en place des droits lorsqu'un administrateur ou un utilisateur disposant de droits lorsque celui-ci commit et push sur le repository gitolite ?</p>
+<p>Sur le système contenant tous les repositories de référence est déployé tout un ensemble de hooks sous formes de hooks déployés dans chaque repository y compris le repository gitolite. Ces scripts seront exécutés a chaque fois qu'un événement git est appliqué sur le repository.</p>
+<p><code><br />
+git@scarlett:~/repositories/gitolite-admin.git/hooks$ ls -l<br />
+total 48<br />
+-rw------- 1 git git  441 Dec 18 15:31 applypatch-msg<br />
+-rw------- 1 git git  887 Dec 18 15:31 commit-msg<br />
+-rw------- 1 git git  152 Dec 18 15:31 post-commit<br />
+-rw------- 1 git git  510 Dec 18 15:31 post-receive<br />
+-rwxr-xr-x 1 git git 1253 Dec 18 15:31 post-update<br />
+-rw------- 1 git git  387 Dec 18 15:31 pre-applypatch<br />
+-rw------- 1 git git 1706 Dec 18 15:31 pre-commit<br />
+-rw------- 1 git git 4262 Dec 18 15:31 pre-rebase<br />
+-rw------- 1 git git 1196 Dec 18 15:31 prepare-commit-msg<br />
+-rwxr-xr-x 1 git git 4963 Dec 18 15:31 update<br />
+</code></p>
+<p>On remarquera que seuls les hooks update et post-update sont actifs (Droits d'exécution présents). </p>
+<p>Côté authentification et application des ACLs, tout se fait en utilisant uniquement SSH. En effet la partie authentification est assurée par gitolite par un couple clé privée / clé publique spécifique à chaque utilisateur gitolite.</p>
+<p>Sur le serveur contenant tous les repositories de référence, tout se fait avec un seul utilisateur POSIX. Tous les utilisateurs gitolite seront des utilisateurs virtuels identifiés par leur clés publique SSH sur ce compte POSIX.</p>
+<p>Ainsi, la vérification des ACLs pour un utilsateur donné se fera par l'exécution d'une commande gitolite dès que la clé de celui-ci sera reconnue par le serveur SSH par l'intermédiaire du fichier authorized _keys du compte POSIX utilisé pour le management des repositories de référence.</p>
+<p><code><br />
+# gitolite start<br />
+command="/home/git/.gitolite/src/gl-auth-command ptitoliv",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEArvCWSA9oQM+GrQbb8sdqQkgyraATjBjpTR6UrsUo1anQ2nFNf5glepKb1vyskY1FWzYTnEdQeZXD/4h2J9J/lMFdzISgZ7jpX5Y7Vzrm7tz4eKUTIKiX/E5+aANjHyj8xpatDK4BonSAJySTBc/X/9S3K58+qoRvax6Aq2FdKwgRCwb3pPa9G3et0wLDgWVaHTLlfDm+8mf3EcYK9i4wa2b1q/sSUxWwN8t/zwSVpy4/+HwUMME9wcpMerX3LLK1Rhxim7n6mr71oJY9/00lynyyqZufN1seNQxUdnDBZ194bXyqI1e2B+cgewwgXx9txBGdqadTO0YMHGZHCePbfw== ptitoliv@debian-vm<br />
+# gitolite end<br />
+</code></p>
+<p>La capture précédente liste toutes les clés publiques enregistrées pour le compte POSIX présenté précédemment. On remarquera, la déclaration du paramètre command exécutant la commande gitolite <code>gl-auth-command</code> permettant d'authentifier l'utilisateur virtuel et de vérifier ces droits. </p>
+<p>Cette commande prend comme paramètre le nom de l'utilisateur virtuel à utiliser pour la validation des ACLs. C'est donc ici que se fait la correspondance clé &lt;=> nom d'utilisateur gitolite. Nous verrons plus loin que la mise à jour du fichier authorized_keys se fait toute automatiquement par l'intermédiaire des hooks gitolite.</p>
+  <div id="book-navigation-280" class="book-navigation">
+    
+        <div class="page-links clear-block">
+              <a href="/fr/articles/gitolite/presentation" class="page-previous" title="Aller à la page précédente">‹ Présentation de Gitolite</a>
+                    <a href="/fr/articles/gitolite" class="page-up" title="Aller à la page parent">haut</a>
+                    <a href="/fr/articles/gitolite/installation" class="page-next" title="Aller à la page suivante">Installation de Gitolite ›</a>
+          </div>
+    
+  </div>
+    </div>
+<div class="content">
+      </div>
+<div class="content">
+    <ul><li class="en first"><a href="/en/node/286" class="language-link">English</a></li>
+<li class="fr last active"><a href="/fr/articles/gitolite/behind_the_scenes" class="language-link active">French</a></li>
+</ul>  </div>

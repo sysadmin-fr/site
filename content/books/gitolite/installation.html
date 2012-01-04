@@ -1,0 +1,96 @@
+<div class="content">
+      <h1>Pré requis</h1>
+<p>Pour installer gitolite, il faut disposer d'un serveur qui stockera tous les repositories GIT y compris le repository gitolite. C'est sur ce serveur que seront configurées et appliquées les ACLs sur les repositories.Ce serveur sera désigne dans la suite de cette article comme le serveur de référence.</p>
+<p>Ce serveur doit être installé avec les composants suivants : </p>
+<ul>
+<li>git (de préférence > à la version 1.6.2)</li>
+<li>perl</li>
+<li>Serveur SSH</li>
+</ul>
+<p>L'installation ne se faisant pas directement sur le serveur de référence, il faut également disposer d'une machine cliente disposant également de git, perl et d'un client SSH pour communiquer avec le serveur de référence.</p>
+<h1>Préparation du serveur de référence</h1>
+<h2>Ajout d'un utilisateur POSIX</h2>
+<p>Comme dit précédemment, toute l'application gitolite est gérée sous un seul utilisateur POSIX. La première opération est donc de créer cet utilisateur que nous appellerons <code>git</code>. </p>
+<p><code>serveur-git:~# adduser git</code></p>
+<p>Une fois créé tous les repositories seront stockées dans le home directory de ce compte.</p>
+<h2>Mise en place de clés SSH (optionnel)</h2>
+<p>Toute l'installation de gitolite se fait par une succession de commandes SSH entre le client et le serveur. Il est donc préférable de mettre en place une authentification par clé.</p>
+<p>La première étape est donc de créer un couple de clé sur la machine cliente qui va nous servir à nous connecter au compte git du serveur de référence sans mot de passe.</p>
+<p><code><br />
+ptitoliv@workstation:~$ ssh-keygen -t rsa -b 1024<br />
+Generating public/private rsa key pair.<br />
+Enter file in which to save the key (/home/ptitoliv/.ssh/id_rsa):<br />
+Created directory '/home/ptitoliv/.ssh'.<br />
+Enter passphrase (empty for no passphrase):<br />
+Enter same passphrase again:<br />
+Your identification has been saved in /home/ptitoliv/.ssh/id_rsa.<br />
+Your public key has been saved in /home/ptitoliv/.ssh/id_rsa.pub.<br />
+The key fingerprint is:<br />
+0e:1c:9a:d1:22:a4:e5:e3:d1:04:69:92:3d:d8:b3:ae ptitoliv@debian-vm<br />
+The key's randomart image is:<br />
++--[ RSA 1024]----+<br />
+| =+o.            |<br />
+|+=Bo .           |<br />
+|.o=++ o          |<br />
+| ..+ * .         |<br />
+| .. o o S        |<br />
+|  .    o         |<br />
+| .      .        |<br />
+|E                |<br />
+|                 |<br />
++-----------------+<br />
+</code></p>
+<p>Une fois la clé publique générée, il faut la déployer sur le compte git du serveur de référence. Pour cela, on peut utiliser l'outil <code>ssh-copy-id</code>.</p>
+<p><code>ptitoliv@workstation:~$ ssh-copy-id -i /home/ptitoliv/.ssh/id_rsa git@serveur-git<br />
+git@serveur-git's password:<br />
+Now try logging into the machine, with "ssh 'git@serveur-git'", and check in:<br />
+  .ssh/authorized_keys<br />
+to make sure we haven't added extra keys that you weren't expecting.<br />
+</code></p>
+<p>Si <code>ssh-copy-id</code> n'est pas disponible, l'opération consiste juste à importé la clé publique générée dans le fichier <code>./ssh/authorized_keys</code> du compte <code>git</code>. (Ne pas oublier de mettre les droits a 0644 sur le fichier).</p>
+<h1>Téléchargement de gitolite</h1>
+<p>Tout est prêt à présent pour installer gitolite. Afin de récupérer le logiciel, 2 méthodes sont possibles :</p>
+<p>Téléchargement d'un des différents snapshots disponibles à l'adresse <a href="http://github.com/sitaramc/gitolite/downloads">http://github.com/sitaramc/gitolite/downloads</a></p>
+<p>ou bien récupération de la dernière version de développement en clonant le repository de référence sur GitHub :<br />
+<code><br />
+ptitoliv@workstation:~$ git clone git://github.com/sitaramc/gitolite.git<br />
+</code><br />
+<strong>ATTENTION : Le déploiement doit se faire sur la machine cliente et non le serveur de référence.</strong></p>
+<p>Le clone a créé un répertoire gitolite qui contient toutes les fichiers et notamment un script d'installation qui va permettre de configurer gitolite localement et de déployer cette configuration sur le serveur de référence.</p>
+<p>Remarque : Il existe également des snapshots stables des différentes version de gitolite disponibles sur </p>
+<h1>Installation de gitolite</h1>
+<p>Le script d'installation est <code>gl-easy-install</code> dans le répertoire <code>src</code>.Il doit être lancé avec les paramètres suivants : </p>
+<ul>
+<li>Nom de l'utilisateur POSIX sur le serveur de référence</li>
+<li>Hostname du serveur de référence</li>
+<li>Nom de l'utilisateur virtuel qui sera le premier administrateur de gitolite</li>
+</ul>
+<p>Lancement de l'installation <strong>Sur la workstation</strong>:<br />
+<code><br />
+ptitoliv@workstation:~/gitolite$ src/gl-easy-install git debian-vm gitoliteadm<br />
+</code></p>
+<p>Une fois l'installer lancé, celui-ci va exécuter les étapes suivantes : </p>
+<ul>
+<li>Création d'un couple de clé pour l'administrateur gitolite. Ces clés serviront à authentifier l'administrateur gitolite pour mettre à jour les ACLs et la base des utilisateurs.</li>
+<li>Déploiement de gitolite sur le serveur final</li>
+<li>Configuration générale de gitolite. Il sera demander à l'administrateur de configurer tous les paramètres généraux de gitolite tels que la localisation des repositories, les droits UNIX des fichiers par défaut, la journalisation etc. etc. Le fichier une fois configuré sera pushé sur le serveur de référence</li>
+<li>Création du repository d'administration gitolite-admin sur le serveur de référence</li>
+<li>Clone du repository gitolite-admin depuis le serveur de référence sur la machine cliente locale</li>
+</ul>
+<p>Si tout s'est bien passé gitolite est à présent installé et utilisable.</p>
+  <div id="book-navigation-280" class="book-navigation">
+    
+        <div class="page-links clear-block">
+              <a href="/fr/articles/gitolite/behind_the_scenes" class="page-previous" title="Aller à la page précédente">‹ Behind the scenes</a>
+                    <a href="/fr/articles/gitolite" class="page-up" title="Aller à la page parent">haut</a>
+                    <a href="/fr/articles/gitolite/fin_installation" class="page-next" title="Aller à la page suivante">Résultat de l&#039;installation ›</a>
+          </div>
+    
+  </div>
+    </div>
+<div class="content">
+      </div>
+<div class="content">
+    <ul><li class="en first"><a href="/en/node/285" class="language-link">English</a></li>
+<li class="fr last active"><a href="/fr/articles/gitolite/installation" class="language-link active">French</a></li>
+</ul>  </div>

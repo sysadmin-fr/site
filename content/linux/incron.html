@@ -1,0 +1,23 @@
+<div class="content">
+      <p>Incron est un système d'exécution de tâches non pas basé sur une heure ou une date (comme avec un cron classique), mais sur des événements d'un système de fichier Linux. Cet article vous propose de découvrir incron par un exemple concret.</p>
+<p>Incron : <a href="http://inotify.aiken.cz/?section=common&amp;page=home&amp;lang=en" title="http://inotify.aiken.cz/?section=common&amp;page=home&amp;lang=en">http://inotify.aiken.cz/?section=common&amp;page=home&amp;lang=en</a></p>
+<p>Dans mon cas d'utilisation je souhaite que des serveurs web qui diffusent les mêmes sites se relancent a chaque upload via rsync de la conf d'un nouveau virtualhost dans le dossier : </p>
+<p>/etc/apache2/sites-enabled</p>
+<p>Installation sur une debian etch :<br />
+Le packetage incron n'existe qu'en packet backports :</p>
+<p>Rajoutez dans votre etc/apt/sources.list :</p>
+<p><code><br />
+deb <a href="http://www.backports.org/debian" title="http://www.backports.org/debian">http://www.backports.org/debian</a> etch-backports main<br />
+</code></p>
+<p>Puis </p>
+<p>aptitude update<br />
+aptitude install incron</p>
+<p>Maintenant il vous faut rajouter le user root dans :<br />
+/etc/incron.allow</p>
+<p>et creer le fichier /etc/incron.d/apache</p>
+<p><code><br />
+/etc/apache2/sites-enabled IN_CREATE,IN_DELETE apache2ctl -k graceful<br />
+</code></p>
+<p>Dans mon cas j'execute donc la commande apache2ctl -k graceful a chaque modification dans le dossier /etc/apache2/sites-enabled.</p>
+<p>Votre fidele serviteur : nacer.</p>
+    </div>

@@ -1,0 +1,111 @@
+<div class="content">
+      <p>Cet article présente les étapes permettant la création d'un KDC secondaire.</p>
+<h1>Installation d'un KDC secondaire</h1>
+<h2>Pré-requis</h2>
+<ul>
+<li>DNS:
+<ul>
+<li>Pointage OK</li>
+<li>Reverse  OK</li>
+</ul>
+</li>
+<li>Configuration cliente kerberos ok:
+<ul>
+<li>Fichier /etc/krb5.conf valide</li>
+<li>/etc/krb5.keytab avec les entrées host/fqdn@REALM</li>
+</ul>
+</li>
+</ul>
+<h2>Installation</h2>
+<p>A la <em>debian's way:</em><br />
+<code>aptitude install krb5-kdc</code></p>
+<p>Il peut être intéressant de modifier la configuration de kerberos<br />
+pour définir la destination des messages de log du kdc. Pour cela éditez<br />
+le fichier <em&lt;>/etc/krb5.conf, et rajoutez/modifiez la section <em>logging</em>:</em&lt;></p>
+<pre>
+... <snip> ..
+[logging]
+        kdc = FILE:/var/log/kdc.log
+        kdc = SYSLOG:INFO:DAEMON
+....
+</snip></pre>
+<p>Il faut ensuite ajouter une identité pour ce nouveau serveur dans notre base kerberos:<br />
+kadmin: addprinc -randkey host/kdc2.sysadmin.net<br />
+Principal "host/kdc2.sysadmin.net@SYSADMIN.NET" created.
+</p>
+<p>Ce n'est pas le tout, il va falloir faire en sorte que notre serveur secondaire soit synchronisé avec le kdc primaire, sinon je vous dit pas la prise de tête...</p>
+<p>Cela ce fait au travers d'un protocol dédié, implémenté par les outils <em>kprop</em> et <em>kpropd</em>. (Au moins pour MIT-Kerberos).</p>
+<p>Aucune configuration automatique n'existe pour cela actuellement sous debian, il faut tout d'abord rajouter une ligne à la configuration (x)inetd pour prendre en charge le service <em>krb5_prop</em>.</p>
+<p>Exemple:</p>
+<pre>krb5_prop       stream  tcp     nowait  root    /usr/sbin/kpropd krpopd</pre>
+<p>Ensuite il faut autoriser le kdc primaire à faire des mises à jours de la base. Pour cela inserez son <em>principal</em> dans le fichier <em>/etc/krb5kdc/kpropd.acl</em> sur l'esclave.<br />
+Exemple: </p>
+<pre>host/kdc1.sysadmin.net@SYSADMIN.NET</pre>
+<h2>Initialisation du fichier <em>/etc/krb5kdc/stash</em></h2>
+<p>Ce fichier critique contient une version cryptée du mot de passe de la base d'admin kerberos. Il permet l'échange et le decodage des bases d'identitées.</p>
+<p>Deux méthodes sont utilisables, la première est la plus "propre", mise en place à l'époque de telnet &amp; co, elle recrée la base en local et évite l'interception de donnée sensible, toutefois elle à l'inconvenient de vous demander la fameuse "master key" très complexe et très cachée.<br />
+L'initialisation se fait dans ce cas via <cite>kdb5_util stash -f /etc/krb5kdc/stash</cite>.
+</p>
+<p>L'autre option, pour les feignasses que nous sommes est tout simplement de copier via SSH ou autre protocole sécurisé le fichier disponible sur votre kdc primaire ou un autre esclave.</p>
+<h2>Import initial</h2>
+<p>Il nous faut maintenant remplir notre base esclave avec toutes nos données disponibles sur notre KDC primaire, pour cela on executera depuis le serveur primaire les commandes suivantes:</p>
+<pre>
+kdb5_util dump /var/lib/krb5kdc/slave_datatrans
+kprop -f /var/lib/krb5kdc/slave_datatrans kdc1.sysadmin.net
+</pre>
+<p>PS&nbsp;: Il peut arriver que cette opération ne fonctionne pas, notamment sur debian il m'est arrivé plusieurs fois de devoir copier avec SSH la base du serveur primaire pour pouvoir lancer la synchronisation (FIXME a vérifier...)</p>
+<h2>Mise en place d'une synchronisation régulière</h2>
+<p>La mise à jour des bases des kdc secondaires passe par une execution régulière des deux commandes précédentes (dump de la base puis propagation).<br />
+Une fois encore il n'existe aucun outil tout prêt pour cette opération, j'ai par exemple utilisé un script shell assez simple qui se charge de comparer l'état actuel de la base avec l'état précédent et si nécessaire de propager la nouvelle base à la liste des kdc secondaires définis.</p>
+<p>Des améliorations sont envisageables (ex: utilisation entrées <a href="http://www.sysadmin-fr.org/fr/articles/kerberos/dns">DNS SRV</a> pour obtenir la liste des secondaires) mais ça marche:</p>
+<pre>
+#!/bin/sh
+PATH=/usr/bin:/usr/sbin
+
+kdclist="kdc2.sysadmin.net. kdc3.sysadmin.net."
+
+[ -f /var/lib/krb5kdc/slave_datatrans ] && /bin/cp /var/lib/krb5kdc/slave_datatrans /var/lib/krb5kdc/slave_datatrans.old
+
+kdb5_util dump /var/lib/krb5kdc/slave_datatrans
+
+TMP=`/bin/mktemp`
+diff --brief /var/lib/krb5kdc/slave_datatrans /var/lib/krb5kdc/slave_datatrans.old >$TMP
+
+if [ -s $TMP ]; then
+# replication uniquement si modifications
+for kdc in $kdclist
+do
+        kprop -f /var/lib/krb5kdc/slave_datatrans $kdc
+done
+
+fi
+
+/bin/rm $TMP
+</pre><p>Il suffit ensuite de rajouter ce script dans une crontab <em>root</em> (important, pour pouvoir dumper la base<br />
+kerberos). Exemple:<br />
+<cite><br />
+5 */6 * * *     root    /usr/local/sbin/kdc_synch.sh &amp;>/dev/null<br />
+</cite>
+</p>
+<table id="attachments" class="sticky-enabled">
+ <thead><tr><th>Fichier attaché</th><th>Taille</th> </tr></thead>
+<tbody>
+ <tr class="odd"><td><a href="http://www.sysadmin-fr.org/files/kdc_synch.sh">kdc_synch.sh</a></td><td>558 octets</td> </tr>
+</tbody>
+</table>
+  <div id="book-navigation-18" class="book-navigation">
+    
+        <div class="page-links clear-block">
+              <a href="/fr/articles/kerberos/kdc" class="page-previous" title="Aller à la page précédente">‹ 1 - Installation du serveur de ticket KDC</a>
+                    <a href="/fr/articles/kerberos" class="page-up" title="Aller à la page parent">haut</a>
+                    <a href="/fr/articles/kerberos/dns" class="page-next" title="Aller à la page suivante">3 - Configuration DNS pour Kerberos ›</a>
+          </div>
+    
+  </div>
+    </div>
+<div class="content">
+      </div>
+<div class="content">
+    <ul><li class="en first"><a href="/en/node/20" class="language-link">English</a></li>
+<li class="fr last active"><a href="/fr/articles/kerberos/kdc-slave" class="language-link active">French</a></li>
+</ul>  </div>

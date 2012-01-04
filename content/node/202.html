@@ -1,0 +1,29 @@
+<div class="content">
+      <h1>Introduction à NSS</h1>
+<p>NSS, pour NameServiceSwitch est une couche d'abstraction présente sur la plupart des systèmes d'exploitation UNIX. Vous l'utilisez probablement même sans le savoir, notamment pour résoudre un nom en adresse IP. En effet, à l'origine, cette traduction était effectuée via le fichier <em>/etc/hosts</em>, ce qui devient bien évidemment impossible à gérer lors de grands réseaux (par exemple Internet). Est apparu alors un service réseau, le DNS, permettant d'interroger un serveur pour lui demander de traiter la traduction.</p>
+<p /><center><img src="/images/nss-overview.png" /></center>
+<p>Un autre exemple, celui qui nous intéresse particulièrement dans cet article, de traduction entre nom et numéro est la gestion des utilisateurs. En effet, sous UNIX, un utilisateur est défini par un nom, mais aussi et surtout un UID (User Id) et un GID (Group ID). Lors que vous créer un fichier, le système de fichier va enregistrer dans les méta données l'UID et le GID du propriétaire de ce fichier. Cependant, lorsque vous faites un ls sur ce fichier, c'est le nom (et non les valeurs numériques) de l'utilisateur et du groupe qui sont affichés. Cette traduction est traditionnellement effectuée en utilisant les fichiers <em>/etc/passwd</em> et <em>/etc/group</em>. Vous l'aurez compris, un serveur LDAP est très bien adapté pour <em>remplacer</em> ces fichiers. En pratique, les fichiers sont utilisés pour les comptes systèmes (notamment le root) et les comptes de services, tandis que LDAP est utilisé pour les utilisateurs (au sens humain du terme).</p>
+<h1>LDAP et NSS</h1>
+<p>Pour utiliser un serveur LDAP comme source pour les utilisateurs, il convient de créer des objets qui disposent d'un certain nombre d'objectClass, à savoir :</p>
+<ul>
+<li>posixAccount</li>
+<li>shadowAccount (optionel, nécessaire si vous désirez utiliser les extensions shadow)</li>
+<li>posixGroup</li>
+</ul>
+
+  <div id="book-navigation-199" class="book-navigation">
+    
+        <div class="page-links clear-block">
+              <a href="/fr/postfix-sendmail-ldap" class="page-previous" title="Aller à la page précédente">‹ Les services de messageries</a>
+                    <a href="/fr/tout-savoir-sur-ldap" class="page-up" title="Aller à la page parent">haut</a>
+                    <a href="/fr/sudo-et-ldap" class="page-next" title="Aller à la page suivante">Stocker votre configuration sudo dans LDAP ›</a>
+          </div>
+    
+  </div>
+    </div>
+<div class="content">
+      </div>
+<div class="content">
+    <ul><li class="en first"><a href="/en/node/202" class="language-link">English</a></li>
+<li class="fr last active"><a href="/fr/node/202" class="language-link active">French</a></li>
+</ul>  </div>

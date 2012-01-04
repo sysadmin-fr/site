@@ -1,0 +1,76 @@
+<div class="content">
+      <p>Si toute la phase d'installation s'est bien déroulée, différents composants ont été installés sur le serveur de référence et sur la machine cliente.</p>
+<h1>Sur le client</h1>
+<p>L'installation à cloné le repository gitolite-admin déployé sur le serveur de référence contenant toute la configuration (ACLs + utilisateurs)<br />
+<code>ptitoliv@workstation:~/gitolite-admin$ ls -l<br />
+total 8<br />
+drwxr-xr-x 2 ptitoliv ptitoliv 4096 Dec 19 22:14 conf<br />
+drwxr-xr-x 2 ptitoliv ptitoliv 4096 Dec 19 22:14 keydir</code></p>
+<p>Le répertoire conf contient le fichier gitolite.conf dans lequel sont décrites les ACLs par repository. Voici le fichier de configuration par défaut :<br />
+<code><br />
+#gitolite conf<br />
+# please see conf/example.conf for details on syntax and features<br />
+repo gitolite-admin<br />
+    RW+    =   gitoliteadm<br />
+repo testing<br />
+    RW+                 = @all<br />
+</code></p>
+<p>La configuration fonctionne de la manière suivante : On déclare un bloc de configuration avec le mot clé <code>repo</code> suivi du nom du chemin complet du repository git sur le serveur de référence. Le chemin est établi par rapport à la racine de l'arborescence git distante.</p>
+<p>Pour chaque repository,on peut avoir plusieurs ACLs. Les droits possibles sont les suivants :</p>
+<ul>
+<li>R : Droits en lecture(pull / clone / fetch)</li>
+<li>RW : Droits de lecture et d'écriture(push)</li>
+<li>RW+ : Droits de lecture, d'ecriture et de suppression d'objets particuliers (Branches, Tags)</li>
+</ul>
+<p>Pour chaque droit on peut affecter des utilisateurs,des groupes d'utilisateurs ou bien tout le monde avec le mot clé <code>@all.</code></p>
+<p>Actuellement, il y a donc l'utilisateur gitoliteadm (Créé pendant l'installation) qui a tous les droits sur le repository gitolite-admin. C'est donc l'administrateur. Il y a également un repository testing sur lequel tout le monde à les droits.</p>
+<p>Le répertoire keydir quant à lui contient la base des utilisateurs mais sous une forme particulière :<br />
+<code><br />
+ptitoliv@workstation:~/gitolite-admin/keydir$ ls -l<br />
+total 4<br />
+-rw-r--r-- 1 ptitoliv ptitoliv 400 Dec 19 22:14 gitoliteadm.pub<br />
+</code><br />
+La base des utilisateurs est en fait une liste de clés SSH publiques. Le nom de la clé doit être du format <code>"username".pub</code> pour que gitolite puisse l'utiliser par l'intermédiaire des hooks.</p>
+<h1>Sur le serveur de référence</h1>
+<p>L'installer à déployé dans le home directory de l'utilisateur git les éléments suivants :<br />
+<code><br />
+git@serveur-git:~$ ls -al<br />
+drwxr-xr-x 6 git  git  4096 Dec 19 22:27 .<br />
+drwxr-xr-x 6 root root 4096 Dec 19 21:41 ..<br />
+-rw------- 1 git  git   366 Dec 19 22:27 .bash_history<br />
+-rw-r--r-- 1 git  git   220 Dec 19 21:41 .bash_logout<br />
+-rw-r--r-- 1 git  git  3116 Dec 19 21:41 .bashrc<br />
+drwxr-xr-x 7 git  git  4096 Dec 19 21:49 .gitolite<br />
+-rw-r--r-- 1 git  git  3291 Dec 19 21:49 .gitolite.rc<br />
+-rw-r--r-- 1 git  git   675 Dec 19 21:41 .profile<br />
+drwx------ 2 git  git  4096 Dec 19 22:19 .ssh<br />
+drwxr-xr-x 5 git  git  4096 Dec 19 21:48 gitolite-install<br />
+-rw-r----- 1 git  git     0 Dec 19 21:49 projects.list<br />
+drwxr-xr-x 4 git  git  4096 Dec 19 21:49 repositories<br />
+</code></p>
+<p>Les éléments importants sont : </p>
+<ul>
+<li><code>.gitolite</code> : Environnement d'exécution de gitolite.Contient tous les hooks, et la base des ACLs extraite du repository gitolite-admin utilisée pour les autorisations d'accès</li>
+<li><code>.gitolite.rc</code> : Fichier de configuration générale de gitolite</li>
+<li><code>gitolite-install</code> : Répertoire contenant toute l'installation de gitolite. Utilisé pour la première installation et les upgrades/li>
+</li><li><code>.ssh</code> : Répertoire contenant toutes les clés publiques des utilisateurs enregistrés pour utiliser gitolite.
+</li><li><code>repositories</code> : Répertoire contenant tous les repositories administrés ainsi que le repository gitolite-admin</li>
+<li><code>projects.list</code> : Fichier utilisé pour l'interface WEB GitWeb</li>
+</ul>
+<p>Tous ces éléments sont synchronisés entre le serveur de référence et les machines clients depuis lesquelle se fait l'administration de gitolite, le tout synchronisé par l'intermédiaire du repository gitolite-admin. Le seul élément sur lequel l'administrateur agit est ce repository, tout le reste étant géré par les hooks.</p>
+  <div id="book-navigation-280" class="book-navigation">
+    
+        <div class="page-links clear-block">
+              <a href="/fr/articles/gitolite/installation" class="page-previous" title="Aller à la page précédente">‹ Installation de Gitolite</a>
+                    <a href="/fr/articles/gitolite" class="page-up" title="Aller à la page parent">haut</a>
+                    <a href="/fr/articles/gitolite/configuration" class="page-next" title="Aller à la page suivante">Configuration de Gitolite ›</a>
+          </div>
+    
+  </div>
+    </div>
+<div class="content">
+      </div>
+<div class="content">
+    <ul><li class="en first"><a href="/en/node/287" class="language-link">English</a></li>
+<li class="fr last active"><a href="/fr/articles/gitolite/fin_installation" class="language-link active">French</a></li>
+</ul>  </div>

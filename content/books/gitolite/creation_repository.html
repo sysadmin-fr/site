@@ -1,0 +1,136 @@
+<div class="content">
+      <p>Maintenant que l'utilisateur est créé, nous allons lui créer un repository pour lequel il aura tous les droits.</p>
+<p>Pour cela, il suffit de déclarer un nouveau repository dans le fichier gitolite.conf.</p>
+<p>On se place donc sur la machine cliente en tant qu'administrateur gitolite et on procède à l'édition de ce fichier.</p>
+<p><strong>ATTENTION : Ne pas oublier de resynchroniser le repository gitolite-admin à partir du serveur de référence et de vérifier de bien être sur la branche master</strong></p>
+<p>On rajoute donc un repository monprojet-kitu et on donne tous les droits à l'utilisateur gituser.<br />
+<code><br />
+repo monprojet-kitu<br />
+    RW+                 = gituser<br />
+</code></p>
+<p>On commit les modifications localement :<br />
+<code><br />
+ptitoliv@workstation:~/gitolite-admin/conf$ git add gitolite.conf<br />
+ptitoliv@workstation:~/gitolite-admin/conf$ git commit<br />
+Created commit bd103bc: Ajout du repository monprojet-kitu et configuration des droits pour l'utilisateur gituser<br />
+ 1 files changed, 2 insertions(+), 0 deletions(-)<br />
+</code></p>
+<p>Puis on pushe les modifications sur le serveur distant :<br />
+<code>ptitoliv@workstation:~/gitolite-admin/conf$ git push origin master<br />
+Counting objects: 7, done.<br />
+Compressing objects: 100% (3/3), done.<br />
+Writing objects: 100% (4/4), 441 bytes, done.<br />
+Total 4 (delta 1), reused 0 (delta 0)<br />
+To gitolite:gitolite-admin<br />
+   ced7b36..bd103bc  master -> master<br />
+Already on "master"<br />
+Initialized empty Git repository in /home/git/repositories/monprojet-kitu.git/</code></p>
+<p>Une fois encore, les hooks ont fait leur travail lors du push et on procédé à la création du repository sur le serveur de référence. La liste des ACLs a également été mise à jour pour autoriser gituser à accéder à monprojet-kitu.git.</p>
+<p>Si l'on considère les ACLs rentrées dans le fichier <code>gitolite.conf</code>, seul l'utilisateur gituser peut accéder au repository monprojet-kitu.git.</p>
+<p>Pour tester ceci, nous allons tester d'agir sur ce repository depuis la station d'un développeur quelconque propriétaire de la clé privée identifiant l'utilisateur gitolite <code>gituser</code>.</p>
+<h1>Préparation de l'environnement utilisateur</h1>
+<p>Avant que l'utilisateur puisse utiliser gitolite, il faut intégrer la clé privée à son environnement.</p>
+<p>Pour que la clé soit prise par défaut lorsqu'on se connecte au serveur gitolite, on rajoute le bloc de configuration suivant :<br />
+<code><br />
+host gitolite<br />
+     user git<br />
+     hostname serveurgit<br />
+     port 22<br />
+     identityfile ~/.ssh/gituser<br />
+</code></p>
+<p>Test de la connexion :<br />
+<code><br />
+dev@devstation:~/.ssh$ ssh gitolite<br />
+PTY allocation request failed on channel 0<br />
+hello gituser, the gitolite version here is (unknown)<br />
+you have the following permissions:<br />
+  R  W  monprojet-kitu<br />
+  @  @  testing<br />
+Connection to serveurgit closed.<br />
+</code></p>
+<p>On voit bien que c'est la commande rajoutée dans le fichier authorized_keys côté serveur qui est exécutée. Ainsi, on peut savoir a quel repository l'utilisateur à accès.</p>
+<h1>Création du repository et synchronisation</h1>
+<p>On commence à présent à remplir le repository depuis le profil du développeur.</p>
+<h2>Création et initialisation du repository local</h2>
+<p><code><br />
+dev@devstation:~$ mkdir monprojet<br />
+dev@devstation:~$ cd monprojet/<br />
+dev@devstation:~/monprojet$ git init<br />
+Initialized empty Git repository in /home/dev/monprojet/.git/<br />
+</code></p>
+<h2>Déclaration du serveur de référence</h2>
+<p>A ce niveau la, le repository local est créé mais est complètement indépendant du serveur de référence. Pour faire le lien entre les 2, il faut donc déclarer la référence <code>origin</code>. Pour faire une référence correcte, il faut tenir compte de 3 points : </p>
+<ul>
+<li>Le hostname : Doit correspondre au hostname déclaré dans le fichier .ssh/config</li>
+<li>Le path sur le serveur de référence : Le chemin doit être décrit par rapport à la racine déclarée dans le fichier <code>.gitolite.rc</code></li>
+<li>Le nom du repository : Etant donné que tous les repositories distant sont de type "bare", ne pas oublier l'extension .git à la fin</li>
+</ul><p>Voici donc ce que ca donne pour notre repository :<br />
+<code>dev@serveurgit:~/monprojet$ git remote add origin ssh://gitolite/monprojet-kitu.git</code></p>
+<h2>Remplissage du repository et synchronisation</h2>
+<p>Tout est prêt à présent pour utiliser notre repository distant géré par gitolite.<br />
+<code>dev@devstation:~/monprojet$ touch main.c<br />
+dev@devstation:~/monprojet$ git add main.c<br />
+dev@devstation:~/monprojet$ git commit -m "Initial Release"<br />
+[master (root-commit) cebade6] Initial Release<br />
+ 0 files changed, 0 insertions(+), 0 deletions(-)<br />
+ create mode 100644 main.c<br />
+dev@devstation:~/monprojet$ git push origin master<br />
+Counting objects: 3, done.<br />
+Writing objects: 100% (3/3), 212 bytes, done.<br />
+Total 3 (delta 0), reused 0 (delta 0)<br />
+To ssh://gitolite/monprojet-kitu.git<br />
+ * [new branch]      master -> master</code></p>
+<p>Gitolite a autorisé l'utilisateur à pusher sur le serveur de référence. Tout s'est bien passé. Cependant, est que les ACLs ont vraiment été appliquées ? Testons celà avec un autre utilisateur gitolite.</p>
+<p>Rajoutons un deuxième utilisateur dans la base gitolite :<br />
+<code>ptitoliv@workstation:~/gitolite-admin/keydir$ git add badguy.pub<br />
+ptitoliv@workstation:~/gitolite-admin/keydir$ git commit -m "Ajout de l'utilisateur badguy"<br />
+ptitoliv@workstation:~/gitolite-admin/keydir$ git push origin master<br />
+</code></p>
+<p>Cet utilisateur est dans la base mais n'a aucun droit sur le repository monprojet-kitu.git. </p>
+<p>Pour tester, remplaçons la clé de gituser par celle de badguy pour notre compte dev :<br />
+<code>dev@devstation:~$ cat .ssh/config<br />
+host gitolite<br />
+     user git<br />
+     hostname debian-vm<br />
+     port 22<br />
+     identityfile <strong>~/.ssh/badguy</strong></code> </p>
+<p>Testons avec ssh :<br />
+<code>dev@devstation:~$ ssh gitolite<br />
+PTY allocation request failed on channel 0<br />
+hello badguy, the gitolite version here is (unknown)<br />
+you have the following permissions:<br />
+  @  @  testing<br />
+Connection to serveurgit closed.</code></p>
+<p>On constate que c'est maintenant l'utilisateur badguy qui est utilisé et que les droits ont changé.</p>
+<p>Essayons à présent d'accéder au repository :<br />
+<code>dev@devstation:~/monprojet$ git pull<br />
+R access for monprojet-kitu DENIED to badguy<br />
+fatal: The remote end hung up unexpectedly<br />
+dev@devstation:~/monprojet$ git push origin master<br />
+W access for monprojet-kitu DENIED to badguy<br />
+fatal: The remote end hung up unexpectedly/<code></code></code></p>
+<p>Les ACLs sont bien appliquées et les repositories sont bien protégés.</p>
+<h1>Modification des droits</h1>
+<p>Si l'on souhaite changer les droits ou créer d'autres repositories, rien de plus simple. Il suffit d'exécuter les opérations suivantes : </p>
+<ul>
+<li>Récupérer la dernière version du repository gitolite-admin sur le serveur de référence</li>
+<li>Procéder à la modification du fichier gitolite.conf</li>
+<li>Commiter les changements localement</li>
+<li>Pusher la version locale sur le repository de référence</li>
+</ul>
+  <div id="book-navigation-280" class="book-navigation">
+    
+        <div class="page-links clear-block">
+              <a href="/fr/articles/gitolite/ajout_utilisateur" class="page-previous" title="Aller à la page précédente">‹ Ajout d&#039;un utilisateur</a>
+                    <a href="/fr/articles/gitolite/configuration" class="page-up" title="Aller à la page parent">haut</a>
+                    <a href="/fr/articles/gitolite/delegation_de_droits" class="page-next" title="Aller à la page suivante">Délégation de droits ›</a>
+          </div>
+    
+  </div>
+    </div>
+<div class="content">
+      </div>
+<div class="content">
+    <ul><li class="en first"><a href="/en/node/290" class="language-link">English</a></li>
+<li class="fr last active"><a href="/fr/articles/gitolite/creation_repository" class="language-link active">French</a></li>
+</ul>  </div>
