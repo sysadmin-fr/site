@@ -1,0 +1,215 @@
+		<p>
+			L'agent snmpd du projet Net-SNMP dispose de plusieurs modules implémentant au moins autant de MIB. Le module NET-SNMP-EXTEND-MIB est l'un de ceux-là.
+		</p>
+		<p>
+			L'objectif d'extend est de fournir plus ou moins les mêmes fonctionnalités que ce que le module ucd-snmp/extensible propose déjà avec la directive <a href="http://net-snmp.sourceforge.net/docs/man/snmpd.conf.html#lbAX">exec</a>.<br>
+			Cette dernière permet d'exécuter n'importe quelle commande ou script via snmpd.<br>
+			Il est ainsi possible d'exécuter des plugins Nagios à distance à l'instar d'un agent NRPE.
+		</p>
+		<p>
+			Cette première implémentation souffrait toutefois de défauts conceptuels :
+		</p>
+		<ol>
+			<li>Impossible de parcourir la table extTable sans exécuter les différentes commandes. De plus chaque consultation se traduisait par l'exécution deux par deux des commandes et non une seule.
+			</li>
+			<li>En outre, si l'on pouvait récupérer le code de retour de l'exécution, seule la première ligne générée par la commande était disponible.
+			</li>
+			<li>Pour finir, il est obligatoire d'éditer le fichier de configuration puis de redémarrer le service snmpd avant de disposer d'une nouvelle commande.
+			</li>
+		</ol>
+		<p>
+			Le module extend a donc été écrit pour revoir en profondeur ces fonctionnalités.
+		</p>
+		<p>
+			<a href="http://net-snmp.sourceforge.net/docs/mibs/netSnmpExtendMIB.html">NET-SNMP-EXTEND-MIB</a> ne fournit plus une seule mais trois tables :
+		</p>
+		<ul>
+			<li>nsExtendConfigTable ;
+			</li>
+			<li>nsExtendOutput1Table ;
+			</li>
+			<li>nsExtendOutput2Table ;
+			</li>
+		</ul>
+		<p>
+			Le rôle de la première table est évidemment de stocker la configuration des différentes commandes supportées.<br>
+			Ces tables possèdent un index commun assez particulier car il n'est pas composé d'un nombre entier mais de la chaîne de caractères désignant le nom de la commande.
+		</p>
+		<p>
+			Exemple :
+		</p>
+		<p>
+			<code>$ snmpwalk -v 3 -u root -l authNoPriv -a MD5 -A secret localhost nsExtendCommand<br>
+			<em>NET-SNMP-EXTEND-MIB::nsExtendCommand."mailq" = STRING: /usr/lib/nagios/plugins/check_mailq</em></code>
+		</p>
+		<p>
+			Dans cet exemple, l'index est "mailq", soit le nom de la commande définie dans le fichier de configuration, comme suit :
+		</p>
+		<p>
+			<code># extend NAME PROG ARGS<br>
+			extend mailq /usr/lib/nagios/plugins/check_mailq -w 20 -c 40</code>
+		</p>
+		<p>
+			En parcourant la table nsExtendConfigTable, tous ces paramètres se retrouvent :
+		</p>
+		<p>
+			<code>$ snmpwalk -v 3 -u root -l authNoPriv -a MD5 -A secret localhost nsExtendConfigTable<br>
+			<em>NET-SNMP-EXTEND-MIB::nsExtendCommand."mailq" = STRING: /usr/lib/nagios/plugins/check_mailq<br>
+			NET-SNMP-EXTEND-MIB::nsExtendArgs."mailq" = STRING: -w 20 -c 40<br>
+			NET-SNMP-EXTEND-MIB::nsExtendInput."mailq" = STRING:<br>
+			NET-SNMP-EXTEND-MIB::nsExtendCacheTime."mailq" = INTEGER: 5<br>
+			NET-SNMP-EXTEND-MIB::nsExtendExecType."mailq" = INTEGER: exec(1)<br>
+			NET-SNMP-EXTEND-MIB::nsExtendRunType."mailq" = INTEGER: run-on-read(1)<br>
+			NET-SNMP-EXTEND-MIB::nsExtendStorage."mailq" = INTEGER: permanent(4)<br>
+			NET-SNMP-EXTEND-MIB::nsExtendStatus."mailq" = INTEGER: active(1)</em></code>
+		</p>
+		<p>
+			Les valeurs des autres OID sont par défaut et ne sont pas accessibles par la simple définition de la directive mais uniquement à partir d'une requête SET :
+		</p>
+		<ul>
+			<li>nsExtendCacheTime permet de définir la durée de rétention en cache de la sortie de la commande précédemment exécutée. Cela évite les exécutions intempestives à chaque consultation. Une valeur à -1 désactive le cache ;
+			</li>
+			<li>nsExtendExecType définit le type d'exécution, par défaut exec. L'autre option possible est le shell ;
+			</li>
+			<li>nsExtendRunType permet d'implémenter un « interrupteur » pour exécuter la commande. La valeur par défaut, run-on-read, exécute la commande à chaque consultation des tables d'output (au prorata du cache). La valeur run-on-set ne permet l'exécution qu'à partir d'une requête SET sur ce même OID avec la valeur run-command ;
+			</li>
+			<li>nsExtendStorage n'est malheureusement pas accessible (malgré sa définition dans la MIB) et annonce la méthode de définition de la commande. En effet, permanent signifie qu'elle a été définie via la directive <a href="http://net-snmp.sourceforge.net/docs/man/snmpd.conf.html#lbAX">extend</a> de <a href="http://net-snmp.sourceforge.net/docs/man/snmpd.conf.html">snmpd.conf</a> ;
+			</li>
+			<li>nsExtendStatus fournit évidemment le status de la commande.
+			</li>
+		</ul>
+		<p>
+			Configuration par requêtes SET
+		</p>
+		<p>
+			Revenons sur la valeur de l'OID nsExtendStorage : il signifie que cette commande a été définie directement dans le fichier de configuration.<br>
+			Or, la plupart des OID ne sont pas accessibles via la directive extend. Pour aller plus loin, il est nécessaire d'autoriser l'accès en écriture de votre utilisateur :
+		</p>
+		<p>
+			Exemple :
+		</p>
+		<p>
+			<code>group MyROSystem usm root<br>
+			...<br>
+			view all included .1 80<br>
+			...<br>
+			access MyROSystem "" usm auth exact all all none</code>
+		</p>
+		<p>
+			L'utilisateur (ou secname) 'root' a ainsi accès en lecture et écriture sur l'ensemble des OID disponibles, à condition que ces derniers soient accessibles en écriture (Access à Create dans la MIB) et implémentés par l'agent SNMP.
+		</p>
+		<p>
+			<em>Note : la définition par la directive extend et la requête SET s'avèrent incompatibles. Veillez à effacer toute définition de cette directive afin de pouvoir configurer vos commandes par SET.</em>
+		</p>
+		<p>
+			Pour créer la même commande que définie précédemment par SET, voici la commande<br>
+			minimale :
+		</p>
+		<p>
+			<code>$ snmpset -v 3 -u root -l authNoPriv -a MD5 -A secret localhost \<br>
+			nsExtendCommand.\"mailq\" s "/usr/lib/nagios/plugins/check_mailq" \<br>
+			nsExtendArgs.\"mailq\" s "-w 20 -c 40" \<br>
+			nsExtendStatus.\"mailq\" i 4<br>
+			<em>NET-SNMP-EXTEND-MIB::nsExtendCommand."mailq" = STRING: /usr/lib/nagios/plugins/check_mailq<br>
+			NET-SNMP-EXTEND-MIB::nsExtendArgs."mailq" = STRING: -w 20 -c 40<br>
+			NET-SNMP-EXTEND-MIB::nsExtendStatus."mailq" = INTEGER: createAndGo(4)</em></code>
+		</p>
+		<p>
+			<strong>Important : n'oubliez JAMAIS l'OID nsExtendStatus car la création de la commande est subordonnée à ce dernier. En outre, une requête SET sans cet OID a tendance à faire planter l'agent snmpd.</strong>
+		</p>
+		<p>
+			Si l'on interroge à nouveau la table nsExtendConfig, voici ce que ça donne :
+		</p>
+		<p>
+			<code>$ snmpwalk -v 3 -u root -l authNoPriv -a MD5 -A secret localhost nsExtendConfigTable<br>
+			<em>NET-SNMP-EXTEND-MIB::nsExtendCommand."mailq" = STRING: /usr/lib/nagios/plugins/check_mailq<br>
+			NET-SNMP-EXTEND-MIB::nsExtendArgs."mailq" = STRING: -w 20 -c 40<br>
+			NET-SNMP-EXTEND-MIB::nsExtendInput."mailq" = STRING:<br>
+			NET-SNMP-EXTEND-MIB::nsExtendCacheTime."mailq" = INTEGER: 5<br>
+			NET-SNMP-EXTEND-MIB::nsExtendExecType."mailq" = INTEGER: exec(1)<br>
+			NET-SNMP-EXTEND-MIB::nsExtendRunType."mailq" = INTEGER: run-on-read(1)<br>
+			NET-SNMP-EXTEND-MIB::nsExtendStorage."mailq" = INTEGER: volatile(2)<br>
+			NET-SNMP-EXTEND-MIB::nsExtendStatus."mailq" = INTEGER: active(1)</em></code>
+		</p>
+		<p>
+			Peu de différences avec la définition précédente si ce n'est la valeur de l'OID nsExtendStorage, désormais à volatile, ce qui rappelle que la commande a été définie via une requête SET. De plus, la valeur de nsExtendStatus a évolué vers active, ce qui démontre que la création de la commande a réussi.
+		</p>
+		<p>
+			Pour détruire cette commande, la requête SET est plus simple :
+		</p>
+		<p>
+			<code>$ snmpset -v 3 -u root -l authNoPriv -a MD5 -A secret localhost nsExtendStatus.\"mailq\" i 6<br>
+			<em>NET-SNMP-EXTEND-MIB::nsExtendStatus."mailq" = INTEGER: destroy(6)</em></code>
+		</p>
+		<p>
+			Une fois la requête exécutée, la commande aura été supprimé de la configuration.
+		</p>
+		<p>
+			<code>$ snmpwalk -v 3 -u root -l authNoPriv -a MD5 -A secret localhost nsExtendConfigTable<br>
+			<em>NET-SNMP-EXTEND-MIB::nsExtendConfigTable = No Such Object available on this agent at this OID</em></code>
+		</p>
+		<p>
+			Exploitation des résulats
+		</p>
+		<p>
+			Les sorties standards des commandes ou scripts exécutés sont enregistrées dans deux tables distinctes :
+		</p>
+		<ul>
+			<li>nsExtendOutput1Line ;
+			</li>
+			<li>nsExtendOutput2Line.
+			</li>
+		</ul>
+		<p>
+			Voici le résultat de notre commande mailq :
+		</p>
+		<p>
+			<code>$ snmpwalk -v 3 -u root -l authNoPriv -a MD5 -A secret localhost nsExtendOutput1Table<br>
+			<em>NET-SNMP-EXTEND-MIB::nsExtendOutput1Line."mailq" = STRING: OK: mailq is empty|unsent=0;20;40;0<br>
+			NET-SNMP-EXTEND-MIB::nsExtendOutputFull."mailq" = STRING: OK: mailq is empty|unsent=0;20;40;0<br>
+			NET-SNMP-EXTEND-MIB::nsExtendOutNumLines."mailq" = INTEGER: 1<br>
+			NET-SNMP-EXTEND-MIB::nsExtendResult."mailq" = INTEGER: 0</em></code>
+		</p>
+		<p>
+			<code>$ snmpwalk -v 3 -u root -l authNoPriv -a MD5 -A secret localhost nsExtendOutput2Table<br>
+			<em>NET-SNMP-EXTEND-MIB::nsExtendOutLine."mailq".1 = STRING: OK: mailq is empty|unsent=0;20;40;0</em></code>
+		</p>
+		<p>
+			nsExtendResult fournit le code de retour de la commande exécutée.<br>
+			Quant à nsExtendOutput1Line, nsExtendOutputFull et nsExtendOutLine, leur contenu semble identique mais cela est uniquement dû au fait que nsExtendOutNumLines ne vaut que 1. Soit une seule ligne en retour (ce qui est normal dans le cas d'un plugin Nagios).
+		</p>
+		<p>
+			Prenons un autre exemple, avec vmstat :
+		</p>
+		<p>
+			<code>$ snmpset -v 3 -u root -l authNoPriv -a MD5 -A secret localhost \<br>
+			nsExtendCommand.\"vmstat\" s "/usr/bin/vmstat" \<br>
+			nsExtendStatus.\"vmstat\" i 4<br>
+			<em>NET-SNMP-EXTEND-MIB::nsExtendCommand."vmstat" = STRING: /usr/bin/vmstat<br>
+			NET-SNMP-EXTEND-MIB::nsExtendStatus."vmstat" = INTEGER: createAndGo(4)</em></code>
+		</p>
+		<p>
+			<code>$ snmpwalk -v 3 -u root -l authNoPriv -a MD5 -A secret localhost nsExtendOutNumLines<br>
+			<em>NET-SNMP-EXTEND-MIB::nsExtendOutNumLines."vmstat" = INTEGER: 3</em></code>
+		</p>
+		<p>
+			<code>$ snmpwalk -v 3 -u root -l authNoPriv -a MD5 -A secret localhost nsExtendOutputFull<br>
+			<em>NET-SNMP-EXTEND-MIB::nsExtendOutputFull."vmstat" = STRING: procs -----------memory---------- ---swap-- -----io---- -system-- ----cpu----<br>
+			r b swpd free buff cache si so bi bo in cs us sy id wa<br>
+			0 0 619196 90500 53108 216204 2 3 13 14 25 54 3 1 95 1</em></code>
+		</p>
+		<p>
+			<code>$ snmpwalk -v 3 -u root -l authNoPriv -a MD5 -A secret localhost nsExtendOutLine<br>
+			<em>NET-SNMP-EXTEND-MIB::nsExtendOutLine."vmstat".1 = STRING: procs -----------memory---------- ---swap-- -----io---- -system-- ----cpu----<br>
+			NET-SNMP-EXTEND-MIB::nsExtendOutLine."vmstat".2 = STRING: r b swpd free buff cache si so bi bo in cs us sy id wa<br>
+			NET-SNMP-EXTEND-MIB::nsExtendOutLine."vmstat".3 = STRING: 0 0 619196 89232 53260 216364 2 3 13 14 25 54 3 1 95 1</em></code>
+		</p>
+		<p>
+			Là réside la différence. La commande vmstat fournit un résultat sur plusieurs lignes. L'OID nsExtendOutputFull fournit une chaîne avec toutes les lignes additionnées et les retours à la ligne d'usage.
+		</p>
+		<p>
+			La table nsExtendOutput2Line présente les même lignes à raison d'un OID par ligne et à l'aide d'un index numérique supplémentaire.
+		</p>
+		<p>
+			J'espère que ce petit tour d'horizon vous aura donné envie d'en savoir plus sur ce petit module et de mettre au placard ce bon vieux module ucd-snmp/exec.
+		</p>
