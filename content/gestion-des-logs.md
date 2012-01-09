@@ -1,6 +1,12 @@
+Gestion des logs
 ---
-title: A New Item
----
+
+Centralisation, stockage, affichage
+
+
+Nxlog
+=====
+
 
 Splunk
 ======
