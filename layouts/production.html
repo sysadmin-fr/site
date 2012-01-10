@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>sysadmin-fr : <%= @item[:title] %></title>
+    <link rel="stylesheet" type="text/css" href="/style.css" media="screen">
+  </head>
+  <body>
+    <div id="main">
+      <%= yield %>
+			       <div id="disqus_thread"></div>
+			       <script type="text/javascript">
+										 var disqus_shortname = 'sysadmin-fr';
+			               var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			               dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			               (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+			           })();
+			      </script>
+						</div>
+		</div>
+
+    <div id="sidebar">
+      <h2>La communauté</h2>
+      <ul>
+    	<li><a href="/articles/">Les articles</a></li>
+	  </ul>
+	
+      <h2>Livre blanc</h2>
+      <ul>
+    	<li><a href="/books/gitolite/">Gitolite</a></li>
+        <li><a href="/books/kerberos/">Kerberos</a></li>
+        <li><a href="/books/kerberos/">Bien gérer ses baies</a></li>
+      </ul>
+    </div>
+  </body>
+</html>
