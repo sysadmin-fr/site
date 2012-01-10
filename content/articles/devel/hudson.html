@@ -1,0 +1,227 @@
+
+      <h1>Introduction</h1>
+<br />
+Dans le cadre de projets de développement logiciels réalisés par une équipe plus ou moins conséquente, l'évolution du code source de l'application est répartie entre ces plusieurs personnes. Le fait que chaque partie du code soit à la charge d'une personne différente, peut entrainer des régressions, des conflits ou bien tout simplement des bugs fonctionnels lors de la mise en commun des différentes parties du code (En particulier si chacun travaille dans son coin et que la communication dans l'équipe de développement n'est pas forcément le maitre mot).
+<br />
+<br />
+Le résultat souvent constaté est donc que le code de chaque développeur fonctionne très bien indépendamment du reste mais lors du merge on peut constater des bugs pouvant aller du simple bug/fait amusant à une catastrophe complète. Cet état à la fâcheuse tendance d'entrainer des surcouts de développement importants afin de faire fonctionner l'applicatif final avec toutes les parties de code mergées.
+<br /><br />
+L'objectif de cet article est donc de présenter un concept de génie logiciel permettant d'éviter cet état de fait mais aussi de voir comment l'on peut mettre ceci en application dans le cadre d'un projet de développement.
+<br /><br />
+Cet article évoquera donc brièvement le concept d'intégration continue ainsi que l'outil Hudson permettant de mettre en oeuvre ce concept.
+<br />
+<br />
+<h1>Integration Continue</h1>
+<br />
+Afin de présenter le concept d'intégration continue, je vais citer la définition présente sur Wikipedia qui résume très bien l'idée de base.
+
+<blockquote>
+L'intégration continue est une technique utilisée en génie logiciel.
+<br />
+Elle consiste à vérifier à chaque modification de code source que le résultat des modifications ne produit pas de régression de l'application en cours de développement. Bien que le concept existait auparavant, l"intégration continue" se réfère généralement à la pratique de l'extreme programming.
+<br />
+Pour appliquer cette technique, il faut d'abord que :
+<ul>
+    <li>le code source soit partagé (en utilisant des logiciels de gestion de versions tels que CVS ou Subversion)</li><li>
+    </li><li>les développeurs intègrent (commit) quotidiennement (au moins) leurs modifications</li>
+    <li>des tests d'intégration soit développés pour valider l'application (avec JUnit par exemple)</li>
+</ul>
+Les principaux avantages d'une telle technique de développement sont :
+<ul>
+    <li>les problèmes d'intégration sont détectés et réparés de façon continue, évitant les problèmes de dernière minute</li>
+    <li>prévient rapidement en cas de code incompatible ou manquant</li>
+    <li>test immédiat des unités modifiées</li>
+    <li>une version est toujours disponible pour test, démonstration ou distribution</li>
+</ul>
+</br/></br/></blockquote>
+
+Source : 
+<a href="http://fr.wikipedia.org/wiki/Int%C3%A9gration_continue">Lien vers Wikipedia</a>
+<br />
+<br />
+<h1>Hudson</h1>
+<br />
+<br />
+<h2>Presentation</h2>
+<br />
+Hudson est un logiciel écrit en JAVA. Il s'agit d'une application WEB accesible et utilisable avec un simple navigateur que ce soit pour l'administration ou l'utilisation.
+
+Hudson permet de mettre en oeuvre tous les mécanismes du concept d'intégration continue à savoir : 
+<ul>
+  <li>Faire du polling depuis un SCM (Source Code Management) pour détecter les mises à jour faites au niveau du code source</li>
+  <li>Réaliser un build du code source récupéré dans le SCM soit dès qu'un changement est detecté au niveau des sources (Nouveau Commit effectué) soit à intervalles réguliers sans se soucier de la présence de nouveaux commits ou non.
+  </li><li>Alerter un contact unique et/ou les committers concernés dans le cas d'un build instable ou incorrect</li>
+  <li>Mise à disposition du résultat des builds corrects pour utilisation (Notion d'artifact)
+</li></ul>
+
+L'équipe de développement de ce logiciel est très active et sort régulièrement de nouvelles versions apportant son lot d'améliorations et d'évolutions. On notera également la présence d'un système de plugins permettant d'ajouter de nouvelles fonctionnalités à hudson comme par exemple le support de nouveaux SCM (comme Git par exemple) ou bien l'intégration avec un bug tracker en cas de build échoué.
+
+Le logiciel se présente sous la forme d'une archive WAR que l'on peut déployer de deux façons : 
+<ul>
+  <li>Déploiement sous forme d'un Web Service dans un serveur Tomcat ou bien Jetty</li>
+  <li>Fonctionnement en mode Standalone. Le WAR intègre le mini serveur Web Winstone permettant de faire fonctionner Hudson sans application externe</li>
+</ul>
+<br />
+<h2>Installation</h2>
+<br />
+L'installation du logiciel est relativement simple si l'on considère le mode standalone (Utilisation du serveur WEB integré). 
+
+Le seul prérequis est de disposer d'une version de java récente comme par exemple : 
+<br />
+<br />
+<code>
+hudson@stardust:~$ java -version<br />
+java version "1.5.0_10"<br />
+Java(TM) 2 Runtime Environment, Standard Edition (build 1.5.0_10-b03)<br />
+Java HotSpot(TM) Server VM (build 1.5.0_10-b03, mixed mode)<br />
+</br/></br/></br/></br/></code>
+<br />
+<br />
+
+Pour l'installation proprement dite, il suffit de suivre la procédure suivante : 
+<ul>
+<li>Telechargement de la dernière version stable sur le site officiel <a href="http://hudson.dev.java.net">http://hudson.dev.java.net</a></li>
+<li>Creation d'un workspace directory dans lequel hudson va être exécuté mais aussi ou vont être réalisé et stockés tous les builds pour les differents projets (Exemple : /var/hudson)</li>
+</ul>
+
+Le WAR de Hudson (nommé hudson.war) peut être stocké n'importe où comme par exemple <code>/usr/local/bin/hudson.war </code>, mais cette localisation peut être changée par l'administrateur de la machine.
+
+Pour exécuter hudson en mode standalone, il suffit de lancer la commande suivante : 
+
+<br /><center><code> java -jar hudson.war</code></center><br />
+
+Si tout est correct, Hudson devrait être accessible par l'adresse http://<ip>:8080.
+
+Remarque : Un script de demarrage pour /etc/init.d est disponible sur le site de Hudson. Ce script est RedHat/Fedora compliant. Cependant, un portage pour Debian est disponible en pièce jointe sur ce billet.
+</ip><br />
+<br />
+<h2>Utilisation</h2>
+<br />
+Sous Hudson, chaque projet de développement est appelé un Job. Pour mettre en place un mécanisme d'intégration continue pour un projet, il suffit donc de créer un nouveau job.
+
+Chaque job sera identifié par un nom et un type, le type pouvant être un des 4 suivants :
+<ul>
+<li>Free Software Project</li>
+<li>Projet Maven2 (Permet de faire un build en bénéficiant de toutes les fonctionnalités du gestionnaire de configuration et de développement Maven)</li>
+<li>Projet Multi-Configuration (Permet de gérer des projets déployables sur des configurations multiples et variés tel que des architectures matérielles differentes par exemple ou bien des environnements différents</li>
+<li>Surveillance d'un job externe</li>
+</ul>
+
+Pour cet article, nous considérons l'utilisation du template <q>Free Software Project</q> afin de compiler une application écrite en C et déroulant une chaine de compilation classique pour ce genre de projet (Utilisation de make ou de cmake)
+
+Une fois le type de projet sélectionné, on passe donc à l'étape suivante qui consiste à configurer le job lui même. C'est à ce niveau de la configuration que l'on va sélectionner le SCM à utiliser, les instructions à exécuter pour dérouler la chaine de compilation etc. etc.
+
+Voyons en détail les informations importantes à renseigner pour la configuration d'un job : 
+<ul>
+<li>Name / Description : Spécification du nom du job et d'une description détaillée</li>
+<li>Discard old builds : Hudson conserve une trace de tous les builds réalisés. Il est cependant possible de supprimer les builds les plus anciens. Il est possible de préciser soit le nombre maximum de builds a conserver ou bien un nombre maximum de jours pendant lequel les builds doivent être conservés.</li>
+<li>Source Code Management : Permet de spécifier le SCM à utiliser. Par défaut, il n'est possible d'utiliser que CVS ou SUBVERSION. Cependant, il existe un certains nombre de plugins permettant de rajouter des SCM (comme par exemple GIT). En plus du SCM, on spécifiera bien evidemment l'URL d'accès du module correspondant au projet.</li>
+<li>Build Triggers : C'est dans cette section que l'on va configurer la manière dont va être réalisé le build du job. Il existe plusieurs manière de lancer l'exécution d'un build :
+<ul>
+  <li>Lancer l'exécution du build après que le build d'un autre job ait été exécuté. On spécifiera le nom du ou des jobs Hudson en paramètre ==> Option Build after other projects are built<br /></br/></li>
+  <li>Lancer l'exécution du build lorsque des nouveaux commits seront enregistrés au niveau du SCM ==> Option Poll SCM. On spécifiera sous forme d'une entrée crontab l'intervalle de temps entre 2 consultations du SCM pour vérifier la présence de nouveaux commits.<br /></br/></li>
+  <li>Lancer l'exécution du build à intervalles réguliers indépendamment de l'état du code source dans le SCM. On spécifiera l'intervalle de temps entre 2 builds sous forme d'une entrée crontab.<br />
+</br/></li></ul>
+</li>
+<li>Build : C'est dans cette section que l'on va spécifier les différentes directives à exécuter pour dérouler la chaine de génération du build. Il est possible de spécifier plusieurs types de directives : 
+<ul>
+<li>Execute Shell : Execution de commandes shell UNIX</li>
+<li>Execute Windows Batch Command : Execution de commandes Windows</li>
+<li>Invoke Ant : Permet de spécifier une cible ANT</li>
+<li>Inovke Top Level Maven targets : Permet de spécifier une cible MAVEN</li>
+</ul>
+</li>
+<li>Post-install actions : Cette section permet de décrire toutes les taches à réaliser après l'exécution d'un build (que celui-ci soit correct ou non). On pourra donc par exemple :
+<ul>
+<li>
+  Archive the artifacts : Permet de sélectionner les resultats du build à conserver. Les fichiers retenus seront accessible en téléchargement depuis la page de résultat de chaque build.
+</li>
+ <li>
+  Record fingerpints of files to track usage : Permet d'apposer une empreinte digitale sur chaque fichier résultats pour des besoin de tracking.
+ </li>
+ <li>
+  Publish Javadoc : Generation de la javadoc associée au projet
+ </li>
+ <li>
+  Publish JUnit Test Report : Génération des fichiers resultats de tests unitaires générés par JUnit. (Utiles uniquement pour les projets JAVA)t 
+ </li>
+ <li>
+  Build other projects : Déclenche l'exécution d'autres projets Hudson une fois le build du projet courant exécuté
+ </li>
+ <li>
+  E-mail Notifications : Si cette option est active, un mail d'alerte sera envoyé en cas d'une opération de build échouée. Les mails seront envoyés soit à une liste de destinataires spécifiées en paramètre soit au commiter responsable du build erroné (Attention : Cela implique que chaque commiter ait une adresse valide. Pour celà, il faut renseigner au niveau de la gestion des utilisateurs les adresses email au fur et a mesure que hudson les detecte lors de l'interrogation du SCM.
+ </li>
+</ul>
+</li>
+</ul>
+
+Une fois toutes ces informations renseignées, le job Hudson est prêt à être exécuté. Si l'on revient à la  page d'accueil, Hudson présente un tableau résumé de tous les projets avec leur status (Stabilité, Date du dernier build realisé avec succès, date du dernier build échoué, durée d'exécution du build)
+
+Lorsque l'on sélectionne un projet particulier, on tombe sur la page de status du projet sur laquelle on retouve les informations et les fonctionnalités suivantes : 
+<ul>
+  <li>Visualisation de la copie locale courante extraite du SCM utilisée pour réaliser les build</li>
+  <li>Visualisation des derniers changements commités dans le SCM (Recent Changes)</li>
+  <li>Déclenchement de l'exécution d'un build</li>
+  <li>Modification de la configuration du job</li>
+</ul> 
+
+Un des éléments importants de cet écran est la liste des builds. Pour chaque build, on peut connaitre son status (Bleu : Génération avec succès, Rouge : Erreur lors de la génération, Rouge Clignotant : En cours d'exécution)
+
+On remarque également la présence de flux RSS auxquels on peut s'abonner avec son lecteur préféré. Pour chaque projet, on aura les deux flux RSS suivants : 
+<ul>
+<li>
+  Un flux contenant la liste de tous les builds
+</li>
+<li>
+  Un flux contenant la liste de tous les builds erronés
+</li>
+</ul>
+
+Chaque build dispose également d'une page de statut dans laquelle on peut retrouver diverses informations concernant le build telles que : 
+<ul>
+  <li>Une description des changements commités depuis le dernier build</li>
+  <li>Une trace console des commandes exécutées lors de la génération du build. Cette fonctionnalité est très utile pour débugger et comprendre les causes d'un build incorrect</li>
+</ul>
+
+On notera la présence d'une barre de navigation de type Previous / Next très pratique pour naviguer entre les différents builds d'un même projet.
+<br />
+<br />
+<h1>Administration</h1>
+<br />
+Pour terminer cette présentation, il est important de parler un petit peu de l'administration générale de l'applicatif. Toutes les options de configuration générale sont accessibles depuis la page d'accueil par l'option de menu <q>Gérer Hudson</q>.
+<br /><br />
+On passera rapidement sur la configuration générale du système qui est relativement simple. Accessible par l'option <q>System Configuration</q>, cette section nous permet de configurer tous les paramètres généraux tels que les chemins d'accès, le serveur SMTP de sortie pour envoyer les mails, le nombre de tâches exécutables en parallèles etc. etc. 
+<br /><br />
+Pour chaque option de menu (comme pour tout le reste de l'applicatif d'ailleurs), une aide contextuelle relativement riche est disponible pour chaque option de configuration.
+<br /><br />
+Un des points forts de Hudson est son système de plugins permettant d'enrichir le fonctionnement de base de Hudson. Grâce à ce système dont la configuration est accessible par le menu <q>Manage Plugins</q>, il est possible d'ajouter des fonctionnalités telles que la gestion de nouveaux SCM, la connexion avec un bug tracker de type TRAC, la remontée d'alertes sur les builds par l'intermédiaire d'un bot IRC et bien d'autres possibilités.
+<br /><br />
+La liste de tous les plugins existants est disponible à l'adresse suivante : 
+<br />
+<br />
+<a href="https://hudson.dev.java.net/servlets/ProjectDocumentList?expandFolder=5818&folderID=0">Hudson Plugins</a>
+<br />
+<br />
+Les plugins installables sont au format HPI (Maven package) afin de faciliter l'installation. Pour ajouter un plugin, il suffit d'uploader celui-ci par l'intermédiaire du formulaire prévu à cet effet, de redémarrer hudson et c'est fait : la nouvelle fonctionnalité est disponible.
+<br /><br />
+Un exemple concret : Le support du SCM GIT. Par défaut, hudson ne supporte que CVS et SVN. Le simple ajout du plugin git permet de s'interfacer simplement et efficacement avec un repository GIT.
+<br />
+Note : Actuellement il n'existe pas de versions téléchargeable du plugin GIT, celui-ni n'étant disponible que dans le sources pour le moment. Cependant, une version au format HPI fonctionnelle est disponible en pièce jointe attachée à ce billet.
+<br /><br />
+Pour terminer, un petit mot sur la gestion des personnes. Il est en effet possible de créer des utilisateurs dans hudson. Ces utilisateurs peuvent être utilisés soit pour faire de la sécurité, soit pour identifier les committers sur un projet donné.
+<br /><br />
+Hudson propose une création automatique d'utilisateurs en fonction de la détection de nouveaux commiters dans le SCM ce qui est très pratique sur de gros projets. Ce sont ces comptes utilisateurs qui seront utilisés pour identifier les différents commiters dans les différentes sections de hudson.
+<br /><br />
+Il est important de vérifier régulièrement que les adresses e-mail sont correctement remplies afin d'être sur que les commiters reçoivent bien les mails d'alerte les concernant. Normalement hudson est capable de le faire tout seul mais dans certains cas, les adresses e-mail sont mal renseignées au niveau des comptes utilisateurs.
+<br />
+<br />
+<h2>Conclusion</h2>
+<br />
+Cet article a donc présenté le principe d'intégration continue ainsi que le fonctionnement d'hudson. Cependant, il n'a été présenté ici que les fonctionnalités de base et les possibilités d'exploitation semblent importantes. Hudson est un outil très performant et très evolutif permettant de gérer des projets importants.
+<br />
+<br />
+Malgré son orientation claire pour les projets java, Hudson s'avère très puissant pour faire de l'intégration continue d'applicatifs et même de drivers développés en C. De plus son interface WEB conviviale et sa rapidité de mise en place sont très appréciables : on peut en effet avoir un hudson opérationnel et un build fonctionnel en très peu de temps.
+<br /><br />
+De plus, la constante evolutivité du projet tant au niveau du développement de l'application elle même que l'ajouts de nouvelles fonctionnalités au travers de l'ajout de nouveaux plugins en font un outil très maniable.
+<br /><br />
+Un outil donc à conseiller pour nos amis les développeurs.
