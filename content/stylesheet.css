@@ -120,6 +120,14 @@ div.second-column {
 	width: 48%;
 }
 
-div.clearfloat {
+div.clear-float {
 	clear: both;
+}
+
+div.previous-link {
+	float: left;
+}
+
+div.next-link {
+	float: right;
 }
