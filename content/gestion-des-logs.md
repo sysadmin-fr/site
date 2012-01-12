@@ -6,13 +6,9 @@ The questions to asks
 ======
 
 * did the packets need to be encrypted
-
 * can you afford to loses some packets
-
 * do you need a fancy UI
 
-
-test
 
 The tools to use
 ======

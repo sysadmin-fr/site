@@ -1,0 +1,44 @@
+      <h1>Historique</h1>
+
+<p>L'implémentation de référence d'un serveur LDAP est née à l'université du Michigan : le projet <i>slapd</i> (c'est le nom du démon LDAP de la majorité des serveurs), au début des années 90.</p>
+
+<p>Cette base de code, à travers une succession de forks, de rachats et de lois de propriété intellectuelle, constitue la base de la majorité des serveurs LDAP qui existent aujourd'hui : OpenLDAP, 389 DS, Sun DSEE...</p>
+
+<h1>Les serveurs libres</h1>
+<hr />
+<h2>OpenLDAP</h2>
+
+<p><a href="http://www.openldap.org/">OpenLDAP</a> a commencé en tant que fork du projet <i>slapd</i> de l'Université du Michigan. Le logiciel est distribué sous une licence proche de la BSD (l'OpenLDAP public license).</p>
+
+<p>La dernière version majeure, la 2.4, supporte, entre autres :
+</p><ul>
+ <li>Réplication multi-maître</li>
+ <li>Configuration via LDAP lui-même, à chaud</li>
+ <li>Divers backends pour stocker les données: base locale BerkeleyDB, serveur LDAP distant (mode proxy), serveur SQL, fichiers texte...</li>
+ <li>Divers overlays (plugins) pour étendre les capacités de base : intégrité référentielle, groupes dynamiques, politique de mots de passe, etc...</li>
+</ul>
+
+
+<h2>OpenDS</h2>
+
+<p><a href="http://opends.dev.java.net">OpenDS</a> est un projet né de l'envie de Sun Microsystems de libérer le code de <em>Directory Enterprise Edition</em> néanmoins pour diverses raisons (notamment la difficulté de savoir qui est le détenteur de la propriété intellectuelle de tout le code) Sun à décider de commencer la réécriture complète de l'annuaire. Ce nouveau projet (sous licence CDDL) est entièrement écrit en Java, et dispose de fonctionnalités très intéressante, notamment en terme de performances (aussi bien lecture qu'écritures !).</p>
+
+<h2>ApacheDS</h2>
+
+<p><a href="http://directory.apache.org">ApacheDS</a> est le projet d'annuaire par la fondation Apache. À la différence des autres annuaires libres, il ne se contente pas de fournir une interface LDAP, mais d'autres services associés, comme Kerberos. Cela à le gros avantage de faciliter l'intégration entre les deux services.</p>
+
+<h2>389 (ex-Fedora/RedHat) directory server</h2>
+
+<p>En 1996, Netscape a embauché les développeurs du projet <i>slapd</i> de l'Université du Michigan, donnant naissance au produit <i>Netscape Directory Server (NDS)</i>, sur la même base de code. Suite au rachat de Netscape par AOL, ce dernier a revendu le contrôle des droits sur ce code à RedHat. Le 1er juin 2005, les sources de ce qui est devenu aujourd'hui <i><a href="http://directory.fedoraproject.org/">389 DS</a></i> ont été placées sous GPL.</p>
+
+<h1>Les autres</h1>
+
+<h2>Sun Directory Server Entreprise Edition</h2>
+
+<p>Suite au rachat de Netscape, qui développait son <i>Netscape Directory Server (NDS)<i> sur la base du code et des développeurs de l'Université du Michigan, par AOL, Sun a acquis la propriété intellectuelle de ce code source. Sun DS dérive de ce même code source.</i></i></p>
+
+<h2>Microsoft Active Directory</h2>
+
+<p>La solution de Microsoft est batie autour d'un annuaire, qui implémente une bonne partie de la norme LDAPv3. Attention cependant, car l'implémentation bafoue la norme en plusieurs endroits, et n'est vraiment pas prévue pour stocker d'autres objets que ceux prévus dans le cadre d'Active Directory : utilisateurs, groupes et comptes machines.</p>
+
+<p>Néanmoins, l'interface LDAP d'Active Directory est souvent bien pratique pour intégrer une application avec ce système omniprésent.</p>

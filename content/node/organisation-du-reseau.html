@@ -1,0 +1,41 @@
+
+      <p>
+Suivant la salle (ou les salles) on retiendra deux modèles possible d'organisation du réseau :</p>
+<ul>
+<li>
+câbler tous les équipements vers une baie de brassage (en passant par des bandeaux de brassage par baie, ou en tirant les câbles un par un); tous les équipements réseau seront ainsi regroupés (cela peut être nécessaire si l'on a un unique switch avec plusieurs cartes 48 ports par exemple)
+</li>
+<li>
+utiliser des switchs de distribution : 1 switch par baie, relié à une baie backbone
+</li>
+</ul>
+<p>On peut bien évidemment mixer ces solutions en fonction du matériel, des baies et des salles à disposition. On peut également regrouper un switch de distribution pour plusieurs baies.
+</p>
+<p>
+Quelques conseils :</p>
+<ul>
+<li>Préférer le positionnement des équipements réseaux à l'arrière des baies quand ils sont minoritaires (au milieu de serveurs) : cela facilite le câblage.<br />
+<i>Nb. Cette solution a le désagrément d'évacuer l'air chaud vers l'intérieur et l'avant de la baie. Attention aux problèmes de flux d'air (cf l'<a href="http://sysadmin.asyd.net/home/fr/node/49">Organisation des baies dans la salle</a> et les problèmes engendrés.)</i>
+</li>
+<li>Préférer le positionnement des switchs de distribution (toujours dans le cas d'équipements réseau minoritaire) à mi-hauteur de baie pour faciliter le câblage : Ceci permet de ne pas avoir à gérer N longueurs de câbles réseau (on peut s'en sortir avec une seule longueur).
+</li>
+<li>Configurer les ports de switch en shutdown par défaut. Cela oblige a se logguer dessus pour monter le port et, au passage, on peut nommer le port suivant une convention choisie, identique <a href="http://sysadmin.asyd.net/home/fr/node/53">au marquage</a>, maintenir de la documentation éventuelle, etc.
+</li>
+</ul>
+
+  <div id="book-navigation-48" class="book-navigation">
+    
+        <div class="page-links clear-block">
+              <a href="/fr/node/51" class="page-previous" title="Aller à la page précédente">‹ Organisation des serveurs dans une baie</a>
+                    <a href="/fr/node/56" class="page-up" title="Aller à la page parent">haut</a>
+                    <a href="/fr/node/52" class="page-next" title="Aller à la page suivante">Organisation du cablage ›</a>
+          </div>
+    
+  </div>
+    </div>
+
+      </div>
+
+    <ul><li class="en first"><a href="/en/node/57" class="language-link">English</a></li>
+<li class="fr last active"><a href="/fr/node/57" class="language-link active">French</a></li>
+</ul>  </div>
