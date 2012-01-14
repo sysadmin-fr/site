@@ -108,6 +108,7 @@ a:hover {
 
 #main code {
 	background-color: #eee;
+	display: block;
 }
 
 div.first-column {
