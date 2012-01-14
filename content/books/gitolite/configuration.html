@@ -7,7 +7,7 @@
 <p>Avant d'entreprendre toute action d'administration, la première chose à faire est de récupérer le repository gitolite-admin sur une machine cliente. Pour celà il faut avoir les droits d'accès à ce repository.</p>
 <p>Ici, nous allons utiliser le compte gitoliteadm créé pendant l'installation qui est administrateur de gitolite. Il faut donc disposer de sa clé privée pour s'authentifier sur gitolite. </p>
 <p>Normalement, l'installer a déposé cette clé dans le repertoire .ssh de l'utilisateur POSIX depuis lequel l'installation a été faite.<br />
-<code><br />
+<code>
 ptitoliv@workstation:~$ ls -al .ssh/gitolite*<br />
 -rw------- 1 ptitoliv ptitoliv 1675 dÃ©c 19 21:21 .ssh/gitoliteadm<br />
 -rw-r--r-- 1 ptitoliv ptitoliv  400 dÃ©c 19 21:21 .ssh/gitoliteadm.pub<br />
@@ -24,7 +24,7 @@ ptitoliv@workstation:~$ ls -al .ssh/gitolite*<br />
 <p><code>ptitoliv@serveur-git:~/gitolite-admin$ git pull origin master</code></p>
 <p>Nous disposons donc localement du repository gitolite-admin "up-to-date" dans lequel on va pouvoir travailler.</p>
 <p>Avec la commande git-clone, il n'est pas possible de spécifier la clé à utiliser. Pour contourner ce problème, il faut utiliser le fichier <code>.ssh/config</code> du home directory depuis lequel on travaille.<br />
-<code><br />
+<code>
 host gitolite<br />
      user git<br />
      hostname serveur-git<br />
@@ -33,7 +33,7 @@ host gitolite<br />
 </code></p>
 <p>Remarque : Ce fichier est automatiquement configuré pour l'administrateur gitolite lors de l'installation.</p>
 <p>Si tout s'est bien passé, le repository gitolite-admin est disponible en local :<br />
-<code><br />
+<code>
 ptitoliv@workstation:~$ ls -al gitolite-admin/<br />
 total 20<br />
 drwxr-xr-x 5 ptitoliv ptitoliv 4096 Dec 20 02:39 .<br />

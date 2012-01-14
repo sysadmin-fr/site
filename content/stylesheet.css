@@ -67,6 +67,10 @@ a:hover {
   list-style-type: square;
 }
 
+#main #author {
+	font-style: italic;
+}
+
 #sidebar {
   position: absolute;
 
@@ -106,7 +110,7 @@ a:hover {
 	margin-top: 20px;
 }
 
-#main code {
+#main pre {
 	background-color: #eee;
 	display: block;
 }

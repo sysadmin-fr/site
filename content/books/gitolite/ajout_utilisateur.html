@@ -3,7 +3,7 @@
 <p>Nous allons donc ajouter un utilisateur <code>gituser</code> dans la base des utilisateurs gitolite.</p>
 <h1>Génération des clés SSH</h1>
 <p>La première étape est donc de générer l'utilisateur <code>gituser</code> en créant les clefs.<br />
-<code><br />
+<code>
 ptitoliv@workstations:~$ ssh-keygen -t rsa -b 1024<br />
 Generating public/private rsa key pair.<br />
 Enter file in which to save the key (/home/ptitoliv/.ssh/id_rsa): gituser<br />
@@ -29,7 +29,7 @@ ptitoliv@debian-vm:~$<br />
 </code></p>
 <h1>Insertion dans le repository gitolite-admin</h1>
 <p>Pour ajouter, l'utilisateur il suffit de copier la clé publique dans le répertoire keydir du repository local gitolite-admin. Ne pas oublier que le nom de la clé doit être au format "username".pub.<br />
-<code><br />
+<code>
 ptitoliv@workstation:~/gitolite-admin/keydir$ cp /home/ptitoliv/gituser.pub .<br />
 ptitoliv@workstation:~/gitolite-admin/keydir$ ls -l<br />
 total 8<br />
@@ -38,7 +38,7 @@ total 8<br />
 ptitoliv@workstation:~/gitolite-admin/keydir$<br />
 </code><br />
 On ajoute ensuite la clé dans le repository gitolite-admin :<br />
-<code><br />
+<code>
 ptitoliv@debian-vm:~/gitolite-admin/keydir$ git add gituser.pub<br />
 ptitoliv@debian-vm:~/gitolite-admin/keydir$ git commit -m "Ajout de l'utilisateur gituser"<br />
 Created commit e07bd81: Ajout de l'utilisateur gituser<br />
@@ -46,7 +46,7 @@ Created commit e07bd81: Ajout de l'utilisateur gituser<br />
  create mode 100644 keydir/gituser.pub<br />
 </code><br />
 L'utilisateur est à présent "commité" dans le repository local gitolite-admin. Cependant il n'est pas encore présent sur le repository sur le serveur de référence. Il faur donc pusher la branche master du repository gitolite-admin sur le serveur de référence.<br />
-<code><br />
+<code>
 ptitoliv@workstation:~/gitolite-admin/keydir$ git push origin master<br />
 Counting objects: 6, done.<br />
 Compressing objects: 100% (4/4), done.<br />

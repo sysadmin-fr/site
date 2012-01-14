@@ -7,7 +7,7 @@ total 8<br />
 drwxr-xr-x 2 ptitoliv ptitoliv 4096 Dec 19 22:14 conf<br />
 drwxr-xr-x 2 ptitoliv ptitoliv 4096 Dec 19 22:14 keydir</code></p>
 <p>Le répertoire conf contient le fichier gitolite.conf dans lequel sont décrites les ACLs par repository. Voici le fichier de configuration par défaut :<br />
-<code><br />
+<code>
 #gitolite conf<br />
 # please see conf/example.conf for details on syntax and features<br />
 repo gitolite-admin<br />
@@ -25,7 +25,7 @@ repo testing<br />
 <p>Pour chaque droit on peut affecter des utilisateurs,des groupes d'utilisateurs ou bien tout le monde avec le mot clé <code>@all.</code></p>
 <p>Actuellement, il y a donc l'utilisateur gitoliteadm (Créé pendant l'installation) qui a tous les droits sur le repository gitolite-admin. C'est donc l'administrateur. Il y a également un repository testing sur lequel tout le monde à les droits.</p>
 <p>Le répertoire keydir quant à lui contient la base des utilisateurs mais sous une forme particulière :<br />
-<code><br />
+<code>
 ptitoliv@workstation:~/gitolite-admin/keydir$ ls -l<br />
 total 4<br />
 -rw-r--r-- 1 ptitoliv ptitoliv 400 Dec 19 22:14 gitoliteadm.pub<br />
@@ -33,7 +33,7 @@ total 4<br />
 La base des utilisateurs est en fait une liste de clés SSH publiques. Le nom de la clé doit être du format <code>"username".pub</code> pour que gitolite puisse l'utiliser par l'intermédiaire des hooks.</p>
 <h1>Sur le serveur de référence</h1>
 <p>L'installer à déployé dans le home directory de l'utilisateur git les éléments suivants :<br />
-<code><br />
+<code>
 git@serveur-git:~$ ls -al<br />
 drwxr-xr-x 6 git  git  4096 Dec 19 22:27 .<br />
 drwxr-xr-x 6 root root 4096 Dec 19 21:41 ..<br />

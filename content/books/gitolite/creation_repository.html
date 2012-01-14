@@ -4,12 +4,12 @@
 <p>On se place donc sur la machine cliente en tant qu'administrateur gitolite et on procède à l'édition de ce fichier.</p>
 <p><strong>ATTENTION : Ne pas oublier de resynchroniser le repository gitolite-admin à partir du serveur de référence et de vérifier de bien être sur la branche master</strong></p>
 <p>On rajoute donc un repository monprojet-kitu et on donne tous les droits à l'utilisateur gituser.<br />
-<code><br />
+<code>
 repo monprojet-kitu<br />
     RW+                 = gituser<br />
 </code></p>
 <p>On commit les modifications localement :<br />
-<code><br />
+<code>
 ptitoliv@workstation:~/gitolite-admin/conf$ git add gitolite.conf<br />
 ptitoliv@workstation:~/gitolite-admin/conf$ git commit<br />
 Created commit bd103bc: Ajout du repository monprojet-kitu et configuration des droits pour l'utilisateur gituser<br />
@@ -31,7 +31,7 @@ Initialized empty Git repository in /home/git/repositories/monprojet-kitu.git/</
 <h1>Préparation de l'environnement utilisateur</h1>
 <p>Avant que l'utilisateur puisse utiliser gitolite, il faut intégrer la clé privée à son environnement.</p>
 <p>Pour que la clé soit prise par défaut lorsqu'on se connecte au serveur gitolite, on rajoute le bloc de configuration suivant :<br />
-<code><br />
+<code>
 host gitolite<br />
      user git<br />
      hostname serveurgit<br />
@@ -39,7 +39,7 @@ host gitolite<br />
      identityfile ~/.ssh/gituser<br />
 </code></p>
 <p>Test de la connexion :<br />
-<code><br />
+<code>
 dev@devstation:~/.ssh$ ssh gitolite<br />
 PTY allocation request failed on channel 0<br />
 hello gituser, the gitolite version here is (unknown)<br />
@@ -52,7 +52,7 @@ Connection to serveurgit closed.<br />
 <h1>Création du repository et synchronisation</h1>
 <p>On commence à présent à remplir le repository depuis le profil du développeur.</p>
 <h2>Création et initialisation du repository local</h2>
-<p><code><br />
+<p><code>
 dev@devstation:~$ mkdir monprojet<br />
 dev@devstation:~$ cd monprojet/<br />
 dev@devstation:~/monprojet$ git init<br />

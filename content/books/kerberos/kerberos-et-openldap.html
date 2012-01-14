@@ -4,7 +4,7 @@
 <p>OpenLDAP gère le standard SASL qui va nous permettre de faire transiter nos tickets kerberos jusqu'a l'annuaire.</p>
 <h4>Pré-requis</h4>
 <p>Sur le serveur de l'annuaire et sur les clients les packages suivant seront nécessaires:<br />
-<code><br />
+<code>
   libsasl2-2<br />
   libsasl2-modules<br />
   libsasl2-modules-gssapi-mit<br />
@@ -40,11 +40,11 @@ sasl-secprops noanonymous,noplain,noactive
 <h4>Le module OpenLDAP</h4>
 <p>Pour cela vous aurez besoin des sources d'openldap, en effet dans le dossier "contrib/slapd-modules/passwd" il existe trois modules optionnel pour gérer des mécanismes de password supplémentares : Kerberos, Radius et "Netscape MTA-MD5".</p>
 <p>Celui qui nous intéresse étant le premier, il faut le compiler par (attention, ne pas utiliser la syntaxe fournie dans le README, le module ne se chargera pas):<br />
-<code><br />
+<code>
 gcc -shared -I../../../include -Wall -lkrb5 -g -DHAVE_KRB5 -fPIC -o pw-kerberos.so kerberos.c<br />
 </code></p>
 <p>puis le copier dans <em>/usr/lib/ldap/</em><br />
-<code><br />
+<code>
 (debian): cp pw-kerberos.so /usr/lib/ldap/<br />
 </code></p>
 <p>Dernière étape, il faut veiller a ce que les UserPassword soient stockés en clair dans l'annuaire, au format <em>{kerberos}asyd@ASYD.NET</em>.</p>

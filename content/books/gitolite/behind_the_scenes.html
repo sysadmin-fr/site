@@ -1,7 +1,7 @@
 
       <p>La gestion des droits se fait donc par l'intermédiaire d'un repository Git. Comment se fait donc la mise en place des droits lorsqu'un administrateur ou un utilisateur disposant de droits lorsque celui-ci commit et push sur le repository gitolite ?</p>
 <p>Sur le système contenant tous les repositories de référence est déployé tout un ensemble de hooks sous formes de hooks déployés dans chaque repository y compris le repository gitolite. Ces scripts seront exécutés a chaque fois qu'un événement git est appliqué sur le repository.</p>
-<p><code><br />
+<p><code>
 git@scarlett:~/repositories/gitolite-admin.git/hooks$ ls -l<br />
 total 48<br />
 -rw------- 1 git git  441 Dec 18 15:31 applypatch-msg<br />
@@ -19,7 +19,7 @@ total 48<br />
 <p>Côté authentification et application des ACLs, tout se fait en utilisant uniquement SSH. En effet la partie authentification est assurée par gitolite par un couple clé privée / clé publique spécifique à chaque utilisateur gitolite.</p>
 <p>Sur le serveur contenant tous les repositories de référence, tout se fait avec un seul utilisateur POSIX. Tous les utilisateurs gitolite seront des utilisateurs virtuels identifiés par leur clés publique SSH sur ce compte POSIX.</p>
 <p>Ainsi, la vérification des ACLs pour un utilsateur donné se fera par l'exécution d'une commande gitolite dès que la clé de celui-ci sera reconnue par le serveur SSH par l'intermédiaire du fichier authorized _keys du compte POSIX utilisé pour le management des repositories de référence.</p>
-<p><code><br />
+<p><code>
 # gitolite start<br />
 command="/home/git/.gitolite/src/gl-auth-command ptitoliv",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEArvCWSA9oQM+GrQbb8sdqQkgyraATjBjpTR6UrsUo1anQ2nFNf5glepKb1vyskY1FWzYTnEdQeZXD/4h2J9J/lMFdzISgZ7jpX5Y7Vzrm7tz4eKUTIKiX/E5+aANjHyj8xpatDK4BonSAJySTBc/X/9S3K58+qoRvax6Aq2FdKwgRCwb3pPa9G3et0wLDgWVaHTLlfDm+8mf3EcYK9i4wa2b1q/sSUxWwN8t/zwSVpy4/+HwUMME9wcpMerX3LLK1Rhxim7n6mr71oJY9/00lynyyqZufN1seNQxUdnDBZ194bXyqI1e2B+cgewwgXx9txBGdqadTO0YMHGZHCePbfw== ptitoliv@debian-vm<br />
 # gitolite end<br />

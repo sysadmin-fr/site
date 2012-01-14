@@ -16,7 +16,7 @@
 <h2>Mise en place de clés SSH (optionnel)</h2>
 <p>Toute l'installation de gitolite se fait par une succession de commandes SSH entre le client et le serveur. Il est donc préférable de mettre en place une authentification par clé.</p>
 <p>La première étape est donc de créer un couple de clé sur la machine cliente qui va nous servir à nous connecter au compte git du serveur de référence sans mot de passe.</p>
-<p><code><br />
+<p><code>
 ptitoliv@workstation:~$ ssh-keygen -t rsa -b 1024<br />
 Generating public/private rsa key pair.<br />
 Enter file in which to save the key (/home/ptitoliv/.ssh/id_rsa):<br />
@@ -52,7 +52,7 @@ to make sure we haven't added extra keys that you weren't expecting.<br />
 <p>Tout est prêt à présent pour installer gitolite. Afin de récupérer le logiciel, 2 méthodes sont possibles :</p>
 <p>Téléchargement d'un des différents snapshots disponibles à l'adresse <a href="http://github.com/sitaramc/gitolite/downloads">http://github.com/sitaramc/gitolite/downloads</a></p>
 <p>ou bien récupération de la dernière version de développement en clonant le repository de référence sur GitHub :<br />
-<code><br />
+<code>
 ptitoliv@workstation:~$ git clone git://github.com/sitaramc/gitolite.git<br />
 </code><br />
 <strong>ATTENTION : Le déploiement doit se faire sur la machine cliente et non le serveur de référence.</strong></p>
@@ -66,7 +66,7 @@ ptitoliv@workstation:~$ git clone git://github.com/sitaramc/gitolite.git<br />
 <li>Nom de l'utilisateur virtuel qui sera le premier administrateur de gitolite</li>
 </ul>
 <p>Lancement de l'installation <strong>Sur la workstation</strong>:<br />
-<code><br />
+<code>
 ptitoliv@workstation:~/gitolite$ src/gl-easy-install git debian-vm gitoliteadm<br />
 </code></p>
 <p>Une fois l'installer lancé, celui-ci va exécuter les étapes suivantes : </p>

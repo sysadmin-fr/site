@@ -5,16 +5,16 @@
 <h1>Les commandes utiles</h1>
 <h2>La commande zpool</h2>
 <p>Celle là, vous la connaissez forcément, ne serait-ce que pour la création du zpool. D'ailleurs, à ce propos, noter que dans  les commandes <i>create</i>, <i>add</i>, <i>replace</i> vous pouvez chaîner les différents types de zpool, comme par exemple la commande&nbsp;: </p>
-<p><code><br />
+<p><code>
 # zpool create data mirror c5t0d0 c6t0d0 mirror c7t0d0 c8t0d0<br />
 </code></p>
 <p>créée automatiquement un stripping (RAID-0) de deux miroirs (RAID-1). </p>
 <p>Néanmoins, la principale commande qui m'intéresse pour cet article est la commande <i>zpool iostats</i> qui me permet d'afficher la consommation d'IO aussi bien sur l'ensemble du <i>pool</i> que sur chaque périphérique. Pour ma part, sans l'argument <i>interval</i>, je ne trouve pas que cette commande soit vraiment pertinente, par contre, dès que l'on fais quelque chose du genre :</p>
-<p><code><br />
+<p><code>
 # zpool iostat -v data 1<br />
 </code></p>
 <p>on obtiens quelque chose de très intéressant&nbsp;:<br />
-<code><br />
+<code>
                capacity     operations    bandwidth<br />
 pool         used  avail   read  write   read  write<br />
 ----------  -----  -----  -----  -----  -----  -----<br />
@@ -28,7 +28,7 @@ data         602M  3.16G      0     51      0  6.43M<br />
 </code></p>
 <h2>kstat / mdb</h2>
 <p>Ces deux commandes permettent d'interroger des variables noyaux, dans notre cas, on s'intéresse au module arc (qui correspond à la gestion du cache) de ZFS.</p>
-<p><code><br />
+<p><code>
 -bash-3.00# kstat 'zfs:0:arcstats'<br />
 module: zfs                             instance: 0<br />
 name:   arcstats                        class:    misc<br />

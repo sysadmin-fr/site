@@ -5,14 +5,14 @@
 <p>Comme vous le savez probablement tous, dans le cas d'une connexion TLS (typiquement une session HTTPs), l'établissement de la session s'effectue avant tout échange au niveau applicatif. Concrètement, il est donc impossible de faire des hôtes virtuels, sur une même adresse IP, avec plusieurs certificats. En effet, dans le cas d'une session HTTPs, le nom d'hôte demandé (défini par l'en-tête <i>Host:</i>) est envoyé au serveur HTTP après l'établissement de la session SSL/TLS, donc après la négociation des certificats. Il est cependant possible d'utiliser le même certificat pour plusieurs hôtes virtuels en utilisant l'extension <i>subjectAltName</i> des certificats X509v3, mais point de salut en cas de multiples certificats.</p>
 <h3>L'évolution de TLSv1.0 : RFC 3546</h3>
 <p>Conscient du problème évoqué ci dessus, l'IETF à travaillé sur une évolution de la RFC 2246, tout en restant en version 1.0 du protocole. Une des évolutions notables est l'introduction du concept de SNI (<i>Service Name Indication</i>), décris dans le chapitre 3.1 de la RFC 3546, en voici un extrait :</p>
-<p><code><br />
+<p><code>
    [TLS] does not provide a mechanism for a client to tell a server the<br />
    name of the server it is contacting. It may be desirable for clients<br />
    to provide this information to facilitate secure connections to<br />
    servers that host multiple 'virtual' servers at a single underlying<br />
    network address.<br />
 </code></p>
-<p><code><br />
+<p><code>
    In order to provide the server name, clients MAY include an extension<br />
    of type "server_name" in the (extended) client hello.  The<br />
    "extension_data" field of this extension SHALL contain<br />

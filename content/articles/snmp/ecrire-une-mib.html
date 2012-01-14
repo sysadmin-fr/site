@@ -1,13 +1,16 @@
-
+---
+author: Bruno Bonfils, &lt;bbonfils@opensi.com&gt;
+title: Introduction à la création d'une MIB
+---
       <p>Cet article a pour objectif de décrire l'écriture d'une (toute) petite MIB, permettant de décrire des traps SNMP. Attention, cet article n'a pas la prétention d'expliquer les best-practices des MIBs, néanmoins, au vu de l'absence de documentation, l'article peut servir de point de départ. </p>
 <p>Tout d'abord, il est recommander de disposer d'un numéro d'OID enterprise (qui peut s'obtenir gratuitement auprès de l'IANA). </p>
 <p>Dans un premier temps, exécuter votre éditeur texte préférer pour créer un fichier nommé OpenCSI-MIB.txt, et y créer le contenu suivant :</p>
 <p>En première ligne, on déclare une nouvelle MIB, nommée OpenCSI-MIB :</p>
-<p><code><br />
+<p><code>
 OpenCSI-MIB   DEFINITIONS ::= BEGIN<br />
 </code></p>
 <p>Ensuite, on effectue quelques imports, permettant d'utiliser des définitions :</p>
-<p><code><br />
+<p><code>
 IMPORTS<br />
     OBJECT-TYPE, NOTIFICATION-TYPE, MODULE-IDENTITY,<br />
     Integer32, Opaque, enterprises, Counter32<br />
@@ -16,7 +19,7 @@ IMPORTS<br />
    FROM SNMPv2-TC;<br />
 </code></p>
 <p>La section suivante est l'une des plus importante, elle permet d'associée notre MIB à notre numéro d'OID enterprise (ici le numéro 10943, attribuée à l'entreprise OpenCSI), et d'apporter quelques informations sur la MIB :</p>
-<p><code><br />
+<p><pre>
 OpenCSI MODULE-IDENTITY<br />
     LAST-UPDATED "200712170000Z"<br />
     ORGANIZATION "Groupe OpenCSI http://www.OpenCSI.com/"<br />
@@ -25,21 +28,21 @@ OpenCSI MODULE-IDENTITY<br />
     DESCRIPTION<br />
    "OpenCSI MIB"<br />
     ::= { enterprises 38434 }<br />
-</code></p>
+</pre></p>
 <p>Il est à noter que dans cette déclaration, nous pouvons introduire différentes informations, comme un CONTACT-INFO, LAST-UPDATED, etc. Néanmoins, les lignes les plus importantes sont les suivantes :</p>
-<p><code><br />
+<p><code>
 OpenCSI MODULE-IDENTITY<br />
     ::= { enterprises 38434 }<br />
 </code></p>
 <p>Cela permet d'associer le numéro 1.3.6.1.4.1.38434 au nom enterprises::OpenCSI.</p>
 <p>Nous voici maintenant au coeur de notre MIB. Avant tout, un peu de contexte : j'ai écris cette MIB pour utiliser avec un script qui renvoie des trap snmp, de la forme 1.3.6.1.4.1.10943.2.1.x. J'ai réserver la branche 38434.2 pour l'application (EJBCA) que le script supervise, et la sous-branche (38434.2).1 pour y décrire les messages d'erreurs, cela se traduit de la manière suivante :</p>
-<p><code><br />
+<p><code>
 ejbca OBJECT IDENTIFIER ::= { OpenCSI 2 }<br />
 error OBJECT IDENTIFIER ::= { ejbca 1 }<br />
 </code></p>
 <p>La première défini une sous branche, nommé EJBCA, avec la valeur 2, qui elle-même est une sous branche de mon OID enterprise. De la même manière, on crée une branche error en dessous de la branche ejbca. </p>
 <p>Maintenant, on décrit un ensemble de noeuds :</p>
-<p><code><br />
+<p><code>
 addEntityError OBJECT IDENTIFIER ::= { error 1 }<br />
 setPasswordError OBJECT IDENTIFIER ::= { error 2 }<br />
 createPKCS12Error OBJECT IDENTIFIER ::= { error 3 }<br />
@@ -50,14 +53,14 @@ checkCRLError OBJECT IDENTIFIER ::= { error 7 }<br />
 nextdateCRLError OBJECT IDENTIFIER ::= { error 8 }<br />
 </code></p>
 <p>Et on n'oublie pas de terminer notre fichier avec :</p>
-<p><code><br />
+<p><code>
 END<br />
 </code></p>
 <p>Maintenant, lorsque de l'envoie d'une trap SNMP à l'aide de la commande suivante :</p>
-<p><code><br />
+<p><code>
 # snmptrap -v2c -c xxxx hostname '' 1.3.6.1.4.1.10943.2 1.3.6.1.4.1.10943.2.1.1 s 'entity already exists'<br />
 </code></p>
 <p>On obtiendra le message suivant du coté de l'agent SNMP :</p>
-<p><code><br />
+<p><code>
 Jan 28 10:02:09 hostname snmptrapd[10289]: 2008-01-28 10:02:09  [UDP: [xx.xx.xx.xx]:50998]: DISMAN-EVENT-MIB::sysUpTimeInstance = Timeticks: (921267323) 106 days, 15:04:33.23^ISNMPv2-MIB::snmpTrapOID.0 = OID: OpenCSI-MIB::ejbca^IOpenCSI-MIB::addEntityError = STRING: "entity already exists"<br />
 </code></p>
