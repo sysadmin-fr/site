@@ -1,24 +1,23 @@
+---
+title: Installation du KDC
+---
 
       <p>Cet article présente en détails les opérations nécessaires à la mise en place d'un serveur de ticket KerberosV (<em>krb5kdc</em>) ainsi que le programme nécessaire à l'administration distance (<em>kadmind</em>), permettant aux administrateur de gérer les différentes identités (<em>principal</em> selon la terminologie kerberos).</p>
 
 <p>Points à garder en tête avant de mettre en place une archi kerberos:
 </p><ul>
-<li>Kerberos ne supporte pas les décalages temporels ( max 300 secondes de différence entre deux machines ), il faut donc auparavant prévoir un déploiement NTP
+<li>Kerberos ne supporte pas les décalages temporels ( max 300 secondes de différence entre deux machines ), il faut donc auparavant prévoir un déploiement NTP ;
 </li>
-<li>Kerberos est très sensible (vous avez dit chiant ? ... non .... enfin si quand même) sur le DNS et surtout le Reverse-DNS, bien vérifier que les entrées dns nécessaires à chaque machine sont bien crées avant tout.
+<li>Kerberos est très sensible (vous avez dit chiant ? ... non .... enfin si quand même) sur le DNS et surtout le Reverse-DNS, bien vérifier que les entrées dns nécessaires à chaque machine sont bien crées avant tout ;
 </li>      
 <li>Attention aussi aux fichiers /etc/hosts, certaines machines, configurées comme suit poserons des problèmes<br />
 <code>
 127.0.0.1   localhost   <strong>nom.de.domaine nom</strong><br />
 1.1.1.1      nom.de.domaine   nom<br />
-</br/></br/></code>
-
-</br/></li>
+</code>
+</li>
 </ul>
-
-
-
-<p>Pour prévenir ces problèmes nous avons en interne un paquet debian contenant toutes les confs et un scripts chargés d'effectuer les tests 'pré vol'. Extrait de la version pour debian/sarge:</p>
+<p>Pour prévenir ces problèmes nous avons en interne un paquet debian contenant toutes les confs et un scripts chargés d'effectuer les tests 'pré vol'. Extrait de la version pour debian/sarge :</p>
 
 <pre>
 echo "Fichier /etc/hosts"
@@ -155,25 +154,6 @@ SYSADMIN.NET = {
 
 <p>Ca y est vous devriez pouvoir aisément vous authentifier auprès du serveur kerberos local en utilisant la commande kinit et vérifier le résultat en utilisant klist. </p>
 
-<em>TODO: la dernière version de MIT Kerberos (1.6) semble pouvoir utiliser un openldap pour stocker la base de principal .. a fouiller: <a href="http://web.mit.edu/Kerberos/krb5-1.6/krb5-1.6.3/doc/krb5-admin.html#Configuring-Kerberos-with-OpenLDAP-back_002dend">Configuring Kerberos with OpenLDAP back-end</a>. Permet d'utiliser la replication ldap pour synchroniser les kdc</em></br/><table id="attachments" class="sticky-enabled">
- <thead><tr><th>Fichier attaché</th><th>Taille</th> </tr></thead>
-<tbody>
- <tr class="odd"><td><a href="http://www.sysadmin-fr.org/files/setup-kerberos.sh">setup-kerberos.sh</a></td><td>3.42 Ko</td> </tr>
-</tbody>
-</table>
-  <div id="book-navigation-18" class="book-navigation">
-    
-        <div class="page-links clear-block">
-              <a href="/fr/articles/kerberos" class="page-previous" title="Aller à la page précédente">‹ Mise en oeuvre de Kerberos</a>
-                    <a href="/fr/articles/kerberos" class="page-up" title="Aller à la page parent">haut</a>
-                    <a href="/fr/articles/kerberos/kdc-slave" class="page-next" title="Aller à la page suivante">2 - Installation d&#039;un serveur de ticket esclave ›</a>
-          </div>
-    
-  </div>
-    </div>
+<em>TODO: la dernière version de MIT Kerberos (1.6) semble pouvoir utiliser un openldap pour stocker la base de principal .. a fouiller: <a href="http://web.mit.edu/Kerberos/krb5-1.6/krb5-1.6.3/doc/krb5-admin.html#Configuring-Kerberos-with-OpenLDAP-back_002dend">Configuring Kerberos with OpenLDAP back-end</a>. Permet d'utiliser la replication ldap pour synchroniser les kdc</em></br/>
 
-      </div>
-
-    <ul><li class="en first"><a href="/en/node/19" class="language-link">English</a></li>
-<li class="fr last active"><a href="/fr/articles/kerberos/kdc" class="language-link active">French</a></li>
-</ul>  </div>
+<%= navigation({ :next_title => "Installation du KDC", :next_link => "/books/kerberos/kdc/" }) %>

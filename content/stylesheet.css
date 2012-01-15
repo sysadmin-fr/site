@@ -28,7 +28,7 @@ a:hover {
   top: 40px;
   left: 280px;
   text-align: justify;
-  width: 60%;
+  margin-right: 100px;
 }
 
 #main h2 {
@@ -110,9 +110,15 @@ a:hover {
 	margin-top: 20px;
 }
 
-#main pre {
-	background-color: #eee;
+#main code {
+	background: #F4F5F7;
 	display: block;
+}
+#main pre {
+	background: #F4F5F7 url(/images/theme/blockquote.gif) 3px 3px no-repeat;
+	border: 1px dashed #CCC;
+	padding: 8px 12px 8px 36px;
+	margin: 5px 0
 }
 
 div.first-column {
