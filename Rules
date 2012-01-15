@@ -17,19 +17,14 @@ compile '/stylesheet/' do
   # don’t filter or layout
 end
 
-compile '*.md' do
-  if item.binary?
-    # don’t filter binary items
-  else
-    filter :kramdown
-    layout 'default'
-  end
-end
-
 compile '*' do
   if item.binary?
     # don’t filter binary items
   else
+    case item[:extension]
+    when "md"
+      filter :kramdown
+    end
     filter :erb
     layout 'default'
   end
