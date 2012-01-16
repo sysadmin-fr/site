@@ -18,7 +18,7 @@ Charte
 
 - ce n'est pas une liste de débutant, donc pas de questions où on trouve la réponse en cherchant 30s sur google
 
-- PAS DE MESSAGE QUI N'APPORTE RIEN, le signal bruit est très faible, et il est hors de question d'en changer
+- PAS DE MESSAGE QUI N'APPORTE RIEN, le bruit est très faible, et il est hors de question d'en changer
 
 - vous *devez* poster, ce n'est pas une liste de lurkeurs. Il m'arrive quelques fois de faire le tour et de supprimer les personnes qui n'ont jamais contribué
 
