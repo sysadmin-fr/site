@@ -72,7 +72,7 @@ a:hover {
 }
 
 #sidebar {
-  position: absolute;
+  position: fixed;
 
   top: 40px;
   left: 20px;

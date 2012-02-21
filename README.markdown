@@ -13,25 +13,25 @@ Si vous avez les droits en écriture sur le repository GIT
 Si vous avez forké le repository GIT
 ---
 
-Nous travaillons pour l'instant dans la branch "migration". C'est pourquoi c'est celle-ci qu'il faut cloner.
-
-    $ git clone -b migration git@github.com:votreCompte/sysadmin-fr.git
+    $ git clone -b master git@github.com:votreCompte/sysadmin-fr.git
     $ git remote add asyd https://github.com/asyd/sysadmin-fr.git
     $ git fetch asyd
 
 Vous pouvez alors vérifier que votre repository est à jour par rapport à celui d'asyd:
 
-    $ git diff migration asyd/migration
+    $ git diff master asyd/master
 
 Cette commande ne vous donnera un diff que si il y a eu un commit dans l'un ou l'autre des repositories.
-Reste à mettre à jour votre repository avec celui d'asyd, qui reste le repo "officiel":
    
-    $ TBD
-
 Une fois que vous êtes content de votre travail, vous avez:
+
 - Commité dans votre repo,
 - Pushé ce commit dans votre repo sur github
-Il reste à demander à asyd s'il veut bien de votre travail. Il faut pour cela lancer un "pull request" depuis la page de votre repo. Après avoir cliqué sur le bouton "pull request", attention de bien choisir "asyd:migration" comme branch de destination. Par exemple:
+
+Il reste à demander à asyd s'il veut bien de votre travail. Il faut pour cela
+lancer un "pull request" depuis la page de votre repo. Après avoir cliqué sur
+le bouton "pull request", attention de bien choisir "asyd:migration" comme
+branch de destination. Par exemple:
 
     "You're asking asyd to pull 4 commits into asyd:migration from votreCompte:migration"
 
