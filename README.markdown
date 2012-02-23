@@ -13,7 +13,10 @@ Si vous avez les droits en écriture sur le repository GIT
 Si vous avez forké le repository GIT
 ---
 
-    $ git clone -b master git@github.com:votreCompte/sysadmin-fr.git
+Pour le fork : https://github.com/asyd/sysadmin-fr/fork_select
+
+    $ git clone -b master git@github.com:VOTRE_COMPTE/sysadmin-fr.git
+    $ cd sysadmin-fr
     $ git remote add asyd https://github.com/asyd/sysadmin-fr.git
     $ git fetch asyd
 
