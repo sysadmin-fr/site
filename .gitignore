@@ -1,2 +1,5 @@
 output
 tmp
+.idea
+*.lock
+*.log
