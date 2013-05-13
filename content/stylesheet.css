@@ -105,6 +105,14 @@ a:hover {
   line-height: 20px;
 }
 
+.toc {
+    font-size: 10pt;
+    border: 1px #CCC;
+    padding: 8px 12px 8px 36px;
+    list-style-type: decimal;
+    margin: 5px 0;
+}
+
 #disqus_thread {
 	border-top: 1px solid #ccc;
 	margin-top: 20px;
@@ -112,13 +120,15 @@ a:hover {
 
 #main code {
 	background: #F4F5F7;
-	display: block;
+    font-family: Inconsolata, Consolas, Courier, 'MS Courier New', monospace;
 }
+
 #main pre {
 	background: #F4F5F7 url(/images/theme/blockquote.gif) 3px 3px no-repeat;
 	border: 1px dashed #CCC;
 	padding: 8px 12px 8px 36px;
-	margin: 5px 0
+	margin: 5px 0;
+    font-family: Inconsolata, Consolas, Courier, 'MS Courier New', monospace;
 }
 
 div.first-column {
